@@ -40,7 +40,7 @@ tapply(cu.summary$Price, cu.summary$Type, mean)
 #a) Lesen Sie die kopierte Datei SMSA aus Ihrem Arbeitsverzeichnis mit Hilfe der Funktion scan in R in eine Matrix namens smsa ein!
 
 SMSA_mod <- readLines("SMSA") #einlesen der Datei
-SMSA_mod <- sub("\\.O", ".0", SMSAO) # Ersetzen von ".O" durch ".0"
+SMSA_mod <- sub("\\.O", ".0", SMSA_mod) # Ersetzen von ".O" durch ".0"
 writeLines(SMSA_mod, "SMSA_mod") #Speichern der Datei
 (smsa <- scan("SMSA_mod", skip = 4))# Einlesen der Datei in R. Das funktioniert jetzt, weil keine ".O" mehr in der Datei enthalten ist.
 
@@ -61,3 +61,11 @@ apply(smsa, 2, sd)
 apply(smsa, 2, quantile, probs = c(0.25, 0.75))
 apply(smsa, 2, min)
 apply(smsa, 2, max)
+
+# ne für die erste und letzte Spalte macht keinen Sinn, weil es sich um IDs handelt
+
+#d) Lesen Sie die kopierte Datei SMSAID mit scan unter geeigneter Verwendung des Arguments what in eine Liste ein! Bauen Sie diese Liste in eine Liste namens smsaid um, die zwei Komponenten namens ID und City enth¨alt! In der Komponente ID sollen alle ID-Nummern stehen und in der Komponente City die dazugeh¨origen Stadtnamen.
+
+
+
+
