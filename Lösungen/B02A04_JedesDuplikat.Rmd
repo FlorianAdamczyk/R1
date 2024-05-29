@@ -1,0 +1,74 @@
+---
+title: "R1 SoSe 2024: Bl. 2, A. 4"
+author: "Gerrit Eichner"
+date: "9. 5. 2024"
+output: html_document
+---
+
+# `duplicated` "extended"
+
+Verwendete Software: `r R.version.string`
+
+## Bsp.-vektoren
+
+```{r bspvektoren}
+y <- c(1, 5, 1, 9, 5)
+y2 <- c(y, rev(y), y)
+```
+
+
+## "Normale" Duplikate
+
+Qua definitionem von links beginnend):
+
+```{r normale-duplikate}
+y[duplicated(y)]
+
+y2[duplicated(y2)]
+```
+
+
+
+## "Alle" mehrfach vorhandenen Elemente
+
+### Version 1
+
+Es wird zum einen von links (wie üblich) gesucht:
+```{r v1-von-links}
+dup.von.links <- duplicated(y)
+```
+
+Zum anderen wird von rechts gesucht, indem im durch `rev`
+"umgedrehten" Vektor wie üblich nach Duplikaten gesucht
+und dann das Resultat wieder "zurückgedreht" wird:
+```{r v1-von-rechts}
+dup.von.rechts <- rev(duplicated(rev(y)))
+```
+
+Schließlich wird der Vektor mit den zwei "ge-oder-ten"
+Suchergebnissen indiziert:
+```{r v1-oder}
+y[dup.von.links | dup.von.rechts]
+```
+
+
+Oder "alles auf einmal":
+```{r v1-alles-auf-einmal}
+y[duplicated(y) | rev(duplicated(rev(y)))]
+
+y2[duplicated(y2) | rev(duplicated(rev(y2)))]
+```
+
+
+
+### Version 2
+
+`duplicated` hat ein Argument, mit dem sich die Suche "umdrehen"
+lässt (siehe Hilfeseite!), sodass die (ineffiziente) doppelte
+Verwendung von `rev` (von Version 1) eingespart werden kann:
+```{r v2-alles-auf-einmal}
+y[duplicated(y) | duplicated(y, fromLast = TRUE)]
+```
+
+
+`y2` sparen wir uns jetzt.

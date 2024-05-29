@@ -1,0 +1,72 @@
+---
+title: "R1 SoSe 2024: Bl. 2, A. 1"
+author: "Gerrit Eichner"
+date: "9. 5. 2024"
+output: html_document
+---
+
+# Vektorisierte Summationen u. a.
+
+Verwendete Software: `r R.version.string`
+
+## a) Potenzen von 1/2
+
+*Meine* Parameterwahl:
+```{r vorbereitung}
+N <- 50
+```
+
+Berechnung von $\frac{1}{2^i}$ für $i = 0, \ldots, N$:
+```{r einhalb-potenzen}
+potenzen.von.ein.halb <- 1/2^(0:N)
+```
+
+**Hinweis:** Zur Operator-Präzedenz siehe `?Syntax`!
+
+
+Die kumulativen Summen $S_n = \sum_{i=0}^n \frac{1}{2^i}$ für $n = 0, \ldots, N$:
+```{r kumulative-summen-a}
+(Sn <- cumsum(potenzen.von.ein.halb))
+```
+
+Erhöhung der *dargestellten* Rechengenauigkeit in
+Form der Anzahl ausgedruckter signifikanter Ziffern:
+```{r mehr-signifikante-ziffern}
+print(Sn, digits = 17)
+```
+
+**Beachte:** Maximum für `digit`: 22 (siehe `?print.default`!)
+
+
+**Frage**: An welches Paradoxon mit einem griechischen Held und
+einer Schildkröte erinnert Sie das Beobachtete?
+
+
+## b) Binomialwahrscheinlichkeiten
+
+*Meine* Parameterwahl:
+```{r vorbereitetung-b}
+n <- 12
+p <- 0.1
+```
+
+Offenbar sind die hier zu berechenenden
+$W_i = \left(n \atop i \right) p^i (1 - p)^{n-i}$ für $i = 0, \ldots, n$
+die Wahrscheinlichkeiten der $Bin(`r n`, `r p`)$-Verteilung und der
+Faktor $\left(n \atop i \right)$ ist ein Binomialkoeffizient, der durch
+`choose` zur Verfügung steht:
+```{r bin-wahrscheinlichkeiten}
+(W <- choose(n, 0:n) * p^(0:n) * (1 - p)^(n:0))
+```
+
+Und hier nun die kumulativen Summen
+$P_k = \sum_{i=0}^k W_i$ für $k = 0, \ldots, N$:
+```{r kumulative-summen-b}
+(P <- cumsum(W))
+```
+
+Erhöhung der *dargestellten* Anzahl signifikanter Ziffern:
+```{r mehr-signifikante-ziffern-b}
+print(P, digits = 17)
+```
+Auweia, ... was ist hier geschehen??

@@ -1,0 +1,353 @@
+# R als übergroßer "Taschenrechner":
+#***********************************
+
+x <- 119 + 2
+
+x
+
+(x <- 170 + 2)
+
+
+
+
+
+# Einige Besonderheiten der Code-Eingabe:
+#****************************************
+
+(kehrwert <- 1/x);    (wurzel <- sqrt(x))   # Ignorierter Kommentar.
+
+
+
+sqrt(pi * x^2
+
+)
+
+
+
+ke   # + Tabulatortaste
+
+
+
+
+
+# Zur Lesbarkeit von R-Code:
+#***************************
+
+## Furchtbar:
+
+ifelse(x<z,W$Sub[v],A/(tau*(exp((omega-x)/(2*tau))+exp(-(omega-x)/(2*tau)))^2))
+
+
+## Besser:
+
+ifelse(x < z, W$Sub[v],
+       A / (tau * (exp((omega - x) / (2*tau)) + 
+                   exp(-(omega - x) / (2*tau))  )^2
+           ) # Ende des Nenners von A / (....)
+      ) # Ende von ifelse(....) 
+
+
+
+
+
+# Objekte und Objekte löschen:
+#****************************
+
+objects()  # = ls()
+
+
+rm(a, x, Otto, Werte.neu)
+
+
+rm(list = objects())     # Radikale Variante: Loescht (fast) alles!
+
+
+
+
+
+# A 2.2: numeric-Vektoren: Erzeugung & element. Opn. ----
+#********************************************************
+
+hoehe <- c(160, 140, 155)
+
+eine.weitere.hoehe <- 175
+
+c(hoehe, eine.weitere.hoehe)
+
+(hoehe <- c(hoehe, eine.weitere.hoehe))
+
+length(hoehe)
+
+
+
+## § 2.2.1: Regelmäßige Zahlenfolgen mit seq & rep ----
+
+seq(from = -2, to = 8, by = 1)  # by = 0.8
+
+seq(from = -2, to = 8)
+
+
+seq(from = 7, to = -1)
+
+seq(from = -5, length = 12, by = 0.2)
+
+seq(from = -5.5, to = 3.5, length = 12)
+
+seq(to = -5, length = 12, by = 0.2)
+
+
+
+seq(-2, 8)
+
+seq(-2, 8, 0.8)
+
+
+
+2:11
+
+-1:10
+
+-(1:10)
+
+2:-8
+
+
+
+
+rep(x = 1:3, times = 4)
+
+rep(x = c(-7, 9), times = c(3, 5))
+
+rep(x = -1:1, length.out = 11)
+
+rep(x = c(-1, 1), each = 3)
+
+rep(x = c(-1, 0), times = 3, each = 2)
+
+rep(x = c(-1, 0), length.out = 13, each = 5)
+
+
+
+
+# A 2.3: Arithmetik für numeric-Vektoren ----
+#********************************************
+
+hoehe <- c(160, 140, 155, 175)
+
+breite <- c(25, 17, 34, 6);   breite * hoehe
+
+breite * hoehe * c(2, 3) + 12
+
+
+
+## Weitere Beispielvektoren: ----
+
+x <- c(-0.3691, 0.3537, -1.0119, -2.6563, NA, 11.3351)
+y <- c(4, 1, 4, 8, 5, 3);    z <- c(2, 3)
+
+
+## § 2.3.1: Elementw. Vektor-Opn. ----
+
+y + z # etc.
+
+pmax(x, y) # etc.
+
+ceiling(x) # etc.
+
+
+
+## § 2.3.2: Zus.-fassende & spez. Opn. ----
+
+sum(y) # etc.
+
+cumsum(y) # etc.
+
+diff(y)
+
+
+
+## § 2.3.3: "Summary statistics" ----
+
+max(x) # etc.
+
+quantile(x)
+
+summary(x)
+
+var(x) # etc.
+
+
+
+
+
+# A 2.4: logical-Vektoren & log. Opn. ----
+#*****************************************
+
+x <- c(160, 145, 195, 173, 181);    x > 175
+
+(a <- c(T, T, F, F));    (b <- c(T, FALSE, TRUE, F))
+
+
+## § 2.4.1: Elementw. log Opn. ----
+
+x < 190 # etc.
+
+
+### Beachte:
+
+a * 2
+
+(x > 175) * 1
+
+sum(x <= 190)
+
+
+(0.2 - 0.1) == 0.1
+
+(0.3 - 0.2) == 0.1
+
+
+## § 2.4.2: Zus.-fassende log Opn. ----
+
+min(x - 150) > 0 && max(log(x - 150)) < 1
+
+
+
+
+y <- c(1, 5, 1, 9, 5)
+
+duplicated(y)
+  
+  
+
+
+
+# A 2.5: character-Vektoren & element. Opn. ----
+#***********************************************
+
+(namen <- c("Peter", "Paul", "Mary"))
+
+weitere.namen <- c('Tic', 'Tac', 'Toe')
+
+(alle.namen <- c(namen, weitere.namen))
+
+
+c(1.3, namen, TRUE, F) 
+
+
+
+## § 2.5.1: Zus.-setzen von Zeichenketten ----
+
+paste("Peter", "ist", "doof!")
+
+paste("Tic", "Tac", "Toe", sep = ",")
+
+paste("Hoehe", hoehe, sep = "=")
+
+paste("Data", 1:4, ".txt", sep = "")
+
+paste(c("x", "y"), rep(1:5, each = 2), sep = "")
+
+
+## § 2.5.2: Benennung von Vektorelementen ----
+
+alter <- c(12, 14, 13, 21, 19, 23)
+
+names(alter) <- alle.namen
+alter
+
+
+c(Volumen = 3.21, Masse = 15.8)
+
+
+
+object.size(alter)
+
+unname(alter)
+object.size(unname(alter))
+
+
+# A 2.6: Indizierung & Modifikation von Vektorelementen ----
+#***********************************************************
+
+## § 2.6.1: Indexvektoren ----
+
+### Indexvektor aus positiven Integers
+
+alter[5]
+
+alter[c(4:2, 13)]
+
+c("Sie liebt mich.", "Sie liebt mich nicht.")[c(1,1,2,1,1,2)]
+
+
+
+### Indexvektor aus negativen Integers
+
+alle.namen[-(1:3)]
+
+alter[-length(alter)]
+
+
+
+### Logischer Indexvektor
+
+alter[c(TRUE, TRUE, FALSE, FALSE, TRUE)]
+
+x[x > 180]
+
+alle.namen[alter >= 21]
+
+alle.namen[alter >= 14 & alter < 18]
+
+letters[c(FALSE, FALSE, TRUE)]
+
+
+
+### Indexvektor aus Zeichenketten
+
+alter["Tic"]
+
+alter[c("Peter", "Paul", "Mary", "Heini")]
+
+alter[weitere.namen]
+
+
+
+## § 2.6.2: Spez Indizierungsfktn. ----
+
+head(alter, n = 2)
+
+tail(alter, n = 1)
+
+
+head(alter, n = -2)
+
+tail(alter, n = -1)
+
+
+
+## § 2.6.3: Indizierte Zuweisungen ----
+
+x;    x[3] <- 188;   x
+
+x[x > 180] <- c(-1, -2, -3)
+
+x
+
+
+(Farben <- c("rot", "gruen", "blau")[c(1, 1, 2, 1, 3, 3, 1, 2, 2)])
+
+Farben[Farben == "rot"] <- "rosa";    Farben
+
+
+### Beachte:
+
+x[ ] <- 99;   x
+
+x <- 2;   x
+
+
+### Frage:
+
+x[x < 0] <- -x[x < 0]

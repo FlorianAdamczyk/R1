@@ -1,0 +1,93 @@
+---
+title: 'R1 SoSe 24: Bl. 4, A. 1'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Variablenweises Normieren multivariater Daten
+
+Verwendete Software: `r R.version.string`
+
+# Beispieldaten
+
+Der in base-R "eingebaute" Datensatz `airquality`:
+
+```{r beispieldaten}
+str(airquality)
+summary(airquality)
+```
+
+## Nur die Luftqualitätsvariablen
+```{r luftqualitaet}
+aq.varnames <- c("Ozone", "Solar.R", "Wind", "Temp")
+```
+
+Ihre arithmet. Mittelwerte und (Stichproben-)Standardabweichungen:
+```{r mittelwerte-und-standardabweichungen}
+(aq.means <- sapply(airquality[aq.varnames], mean, na.rm = TRUE))
+(aq.stdevs <- sapply(airquality[aq.varnames], sd, na.rm = TRUE))
+```
+
+Beobachtung/Fazit: ?!?
+
+
+# Normierung der Luftqualitätsvariablen
+
+## Variante 1: `sweep`
+
+Erst spaltenweise zentrieren: 
+```{r erst-zentrieren}
+aq.centered <- sweep(airquality[aq.varnames], MARGIN = 2, STATS = aq.means) 
+```
+
+Danach (!) spaltenweise standardisieren:
+```{r dann-standardisieren}
+aq.normed <- sweep(aq.centered, MARGIN = 2, STATS = aq.stdevs, FUN = "/") 
+```
+
+### Kontrolle
+... ihrer "neuen" arithmet. Mittelwerte und
+(Stichproben-)Standardabweichungen:
+
+Beachte: Bekommt `sweep` einen Data Frame übergeben, liefert es
+auch einen zurück; daher verwenden wir nun wieder `sapply`:
+```{r kontrolle1}
+sapply(aq.normed, mean, na.rm = TRUE)
+sapply(aq.normed, sd, na.rm = TRUE)
+```
+
+Zur Ergänzung:
+```{r ergaenzung1}
+summary(aq.normed)
+```
+
+Beobachtung/Fazit: ?!?
+
+
+## Variante 2: `scale`
+
+Mit einem einzigen Befehl erst spaltenweise zentrieren und
+danach (!) spaltenweise standardisieren:
+```{r normieren}
+aq.normed2 <- scale(airquality[aq.varnames])
+```
+
+### Kontrolle
+... ihrer "neuen" arithmet. Mittelwerte und
+(Stichproben-)Standardabweichungen:
+
+Beachte: `scale` liefert stets eine Matrix zurück;
+daher verwenden wir hier nun `apply`:
+```{r kontrolle2}
+apply(aq.normed2, MARGIN = 2, FUN = mean, na.rm = TRUE)
+apply(aq.normed2, MARGIN = 2, FUN = sd, na.rm = TRUE)
+```
+
+Zur Ergänzung:
+```{r ergaenzung2}
+summary(aq.normed2)
+```
+
+Beobachtung/Fazit: ?!?

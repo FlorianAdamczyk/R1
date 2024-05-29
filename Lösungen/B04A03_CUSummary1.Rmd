@@ -1,0 +1,65 @@
+---
+title: 'R1 SoSe 24: Bl. 4, A. 3'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Extraktion von Teilen eines Data Frames
+
+Verwendete Software: `r R.version.string`
+
+### Vorbereitung
+
+Zur-Verfügung-Stellen des Objektes `cu.summary` aus dem -- bereits
+installierten -- Paket `rpart`: Durch `data(...)` wird im workspace eine
+Kopie (!) von `cu.summary` angelegt. Es folgt die Überprüfung des
+aktuellen workspaces. Dann: Welche Struktur hat `cu.summary` und was
+steht zusammengefasst sozusagen \`\`drin''?
+
+```{r cu.summary}
+data(cu.summary, package = "rpart");    ls()
+
+str(cu.summary);     summary(cu.summary)
+```
+
+## a) Dt. Fahrzeuge
+
+Extraktion des Teil-Data Frames der Zeilen mit deutschen Fahrzeugen:
+
+```{r a}
+(DAutos <- subset(cu.summary, subset = Country == "Germany"))
+```
+
+## b) Dt. Fahrzeuge ohne Country-Spalte
+
+Extraktion des Teil-Data Frames der Zeilen mit deutschen Fahrzeugen,
+aber ohne die nun überflüssige Spalte `Country`:
+
+```{r b}
+(DAutos <- subset(cu.summary,
+                  subset = Country == "Germany",
+                  select = -Country))
+```
+
+## c) Levelsbereinigung
+
+Wie sieht es jetzt mit den Faktorlevels aus?
+
+```{r c-1}
+str(DAutos)
+```
+
+Elimination nicht auftretender/benötigter Levels aus allen (!) Faktoren
+eines Data Frames:
+
+```{r c-2}
+DAutos <- droplevels(DAutos)
+```
+
+Und jetzt?
+
+```{r c-3}
+str(DAutos)
+```

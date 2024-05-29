@@ -1,0 +1,174 @@
+---
+title: 'R1 SoSe 2024: Bl. 3, A. 3 & 4'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Bearbeitung der Europa-Daten
+
+Verwendete Software: `r R.version.string`
+
+## Aufgabe 3
+
+### "Einlesen" der Daten:
+```{r Datenimport}
+source("Europa.R", encoding = "cp1252")
+```
+
+Hinweis: Eventuell nötig, um falsch kodierte deutsche Umlaute korrekt zu
+kodieren (hier nicht ausgeführt):
+```{r EncodingAnpassung, eval=FALSE}
+Encoding(Land) <- "UTF-8"
+```
+
+
+#### Eine mögliche Lösung für a) & b) (mit etwas sparsamer Spaltenbenennung)
+
+Matrix mit europäischen Länderdaten: pro Zeile ein Land, Kennzahlen in
+den Spalten, Zeilen der Matrix mit Landesnamen benannt und Spalten mit
+Bezeichnungen für Kennzahlen:
+```{r A1a-und-b-Lösung1}
+E1 <- cbind(Fläche = Fl, Bevölk = Bev,
+            BIPKKSproKopf = BIPKKS, Sozialschutz = SozSch,
+            SchülerStudies = SchStu,
+            ArbeitslMann = AlMann, ArbeitslFrau = AlFrau,
+            FuEWirtschaft = FuEWi, FuEHochsch = FuEHo,
+            FuEStaat = FuESt, BeschQuote = Besch, BIPEUR,
+            EExporte = EExp, EnergieImport = EnImp,
+            Strompreis = Strom, Erdgaspreis = Erdgas,
+            Treibhaus2007, TreibhausZiel)
+rownames(E1) <- Land
+```
+
+#### Eine andere Lösung für a) & b) (mit etwas ausführlicheren Spaltennamen)
+```{r A1a-und-b-Lösung2}
+E2 <- cbind(Fl, Bev, BIPKKS, SozSch, SchStu, AlMann, AlFrau,
+            FuEWi, FuEHo, FuESt, Besch, BIPEUR, EExp, EnImp,
+            Strom, Erdgas, Treibhaus2007, TreibhausZiel)
+dimnames(E2) <- list(Land,
+     c("Fläche1000qkm", "Bevölkerung", "BIP.KKSproKopf",
+       "Sozialschutz.KKSproKopf", "SchülerStudierende1000",
+       "QuoteArbeitsloseMänner", "QuoteArbeitsloseFrauen",
+       "FuEQuote.Wirtschaft", "FuEQuote.Hochschulen",
+       "FuEQuote.Staat", "Beschäftigungsquote", "BIP.MioEUR",
+       "EExportProzent", "EnergieImport.1000tROeE",
+       "Strom.EURproKWh", "Erdgas.EURproGJ",
+       "Treibhausgasemissionen2007.tproKopf",
+       "TreibhausgasemissionenZiel.tproKopf"))
+```
+
+
+
+## Aufgabe 4
+
+#### a) Matrix, deren Zeilen (Länder) nach dem BIP aufsteigend sortiert sind
+```{r A2a}
+BIP.order <- order(E2[, "BIP.MioEUR"])
+E2.nach.BIP.sortiert <- E2[BIP.order, ]
+head(E2.nach.BIP.sortiert, 3)   # Kontrolle des Matrix-"Anfangs".
+tail(E2.nach.BIP.sortiert, 7)   # Kontrolle des Matrix-"Endes".
+```
+
+**Beachten** Sie, wo "missing values" (`NA`) einsortiert werden!
+
+
+#### b) Sinnvolle (!) Gesamt- oder Durchschnittswerte für die europäischen Länder
+
+Pro Land die Absolutwerte für seine Gesamtbevölkerung aus den Pro-Kopf-Angaben
+bzw. prozentualen (!) Quoten:
+```{r A2b-1}
+Absolutwerte1 <- E2[, "Bevölkerung"] * 
+  E2[, c("BIP.KKSproKopf",
+         "Sozialschutz.KKSproKopf",
+         "Treibhausgasemissionen2007.tproKopf",
+         "TreibhausgasemissionenZiel.tproKopf")]
+head(Absolutwerte1)
+
+Absolutwerte2 <- E2[, "Bevölkerung"] *
+  E2[, c("QuoteArbeitsloseMänner",
+         "QuoteArbeitsloseFrauen",
+         "Beschäftigungsquote")] / 100
+head(Absolutwerte2)
+```
+
+**Sachfrage:** Sind die hier betrachteten Quoten in der Realität tatsächlich
+bezogen auf die Gesamtbevölkerung (also z. B. einschl. Kinder, Ruheständler:innen
+und Selbstständige)? Und wenn nein, hat das Konsequenzen für die Richtigkeit
+der unten schließlich berechneten Endergebnisse?
+
+
+Pro Land die Absolutwerte für seine F&E-Ausgaben aus den BIP-prozentualen (!)
+Quoten:
+```{r A2b-2}
+FuE.absolut <- E2[, "BIP.MioEUR"] *
+  E2[, c("FuEQuote.Hochschulen",
+         "FuEQuote.Staat",
+         "FuEQuote.Wirtschaft")] / 100
+head(FuE.absolut)
+```
+
+Absolute Summen europaweit über alle Länder hinweg:
+```{r A2b-3}
+(EweiteSummen <- colSums(E2[, c("Bevölkerung", "Fläche1000qkm",
+                                "BIP.MioEUR", "EnergieImport.1000tROeE",
+                                "SchülerStudierende1000")],
+                         na.rm = TRUE))
+```
+
+**Zusatzfrage:** Wie könnte man eine länderspezifische und eine europaweite
+Bevölkerungsdichte berechnen?
+
+
+Für den Erdgas- und den Strompreis tun wir so, als ob wir einen einfachen (also
+ungewichteten) europaweiten Gesamtdurchschnitt angeben dürfen, *was faktisch
+falsch ist*:
+```{r A2b-4}
+(EweiteMittel <- colMeans(E2[, c("Erdgas.EURproGJ", "Strom.EURproKWh")],
+                          na.rm = TRUE))
+```
+
+Bevölkerungs- bzw. BIP-gewichtete Mittelwerte:
+```{r A2b-5}
+(BevGewichteteProKopfMittel <- colSums(Absolutwerte1, na.rm = TRUE) /
+                               EweiteSummen["Bevölkerung"])
+
+(BevGewichteteQuotenMittel <- 100 * colSums(Absolutwerte2, na.rm = TRUE) /
+                              EweiteSummen["Bevölkerung"])
+
+(BIPGewichteteQuotenMittel <- 100 * colSums(FuE.absolut, na.rm = TRUE) /
+                              EweiteSummen["BIP.MioEUR"])
+```
+
+Da wir logischerweise für "EExportProzent" keinen europaweiten Durchschnitt
+angeben können, setzen wir in der folgenden Zusammenfassung das Resultat
+dafür auf `NA`:
+```{r A2b-6}
+(AlleWerte <- c(EExportProzent = NA, EweiteSummen, EweiteMittel,
+                BevGewichteteProKopfMittel, BevGewichteteQuotenMittel,
+                BIPGewichteteQuotenMittel))
+```
+
+Permutation der Elemente in `AlleWerte`, sodass ihre Reihenfolge zu
+der Spaltenreihenfolge der Matrix `E2` passt, und Zusammenfügen der
+Europa-übergreifenden Daten mit den Länderdaten:
+```{r A2b-7}
+(AlleWerte <- AlleWerte[colnames(E2)])
+
+E2Gesamt <- rbind(Europa = AlleWerte, E2)
+head(E2Gesamt, 3)
+```
+
+
+#### c) Pro-Kopf-BIP
+Pro-Kopf-BIP ableiten und als Spalte zur Gesamtdatenmatrix hinzufügen (neben
+Spalte `BIP`):
+```{r A2c}
+(ProKopfBIPEUR <- 1000000 * E2Gesamt[, "BIP.MioEUR"] / E2Gesamt[, "Bevölkerung"])
+E2Gesamt <- cbind(E2Gesamt, ProKopfBIPEUR)
+
+wo <- which(colnames(E2Gesamt) == "BIP.MioEUR")
+E2Gesamt <- E2Gesamt[, c(1:wo, ncol(E2Gesamt), (wo+1):(ncol(E2Gesamt)-1))]
+# head(E2Gesamt, 3)
+```

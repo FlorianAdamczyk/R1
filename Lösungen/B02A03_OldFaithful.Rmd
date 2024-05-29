@@ -1,0 +1,102 @@
+---
+title: "R1 SoSe 2024: Bl. 2, A. 3"
+author: "Gerrit Eichner"
+date: "9. 5. 2024"
+output: html_document
+---
+
+# Die "Old Faithful"-Daten
+
+Verwendete Software: `r R.version.string`
+
+Um im Folgenden Tipparbeit zu sparen:
+```{r zur-abkuerzung}
+wait <- faithful$waiting;   erup <- faithful$eruptions
+```
+
+
+## a)
+```{r a}
+min(wait);   max(wait);   mean(wait);   sd(wait)
+```
+
+
+## b)
+```{r b}
+which.min(wait);   which.max(wait)
+```
+
+
+## c)
+```{r c}
+quantile(wait, prob = 0.7)
+```
+= kleinste Schwelle, bis zu der 70 % aller Wartezeiten liegen (also
+kleiner oder gleich dieser Schwelle sind)  
+= größte Schwelle, über der 30 % aller Wartezeiten liegen.
+
+
+## d)
+```{r d}
+kurz <- wait <= 60;   kurze.wartezeiten <- wait[kurz]
+```
+
+## e)
+```{r e}
+length(wait)
+length(kurze.wartezeiten)
+```
+
+oder:
+```{r e-alternativ}
+sum(kurz)
+```
+
+## f)
+```{r f}
+erup.nach.kurzer.wartezeit <- erup[kurz]
+```
+
+
+## g)
+```{r g}
+mean(wait);   mean(kurze.wartezeiten)
+mean(erup);   mean(erup.nach.kurzer.wartezeit)
+```
+
+
+## h)
+```{r h}
+sum(erup[kurz] >= 2.5)
+```
+
+
+## i)
+```{r i}
+plot(faithful$waiting, faithful$eruptions)
+```
+
+Denkanstöße zur Strukturbeschreibung und Interpretation dieser
+2-dimens. Datenverteilung/Punktewolke (ohne dass erwartet wird,
+dass Sie sie bereits "fachlich perfekt" umsetzen/bearbeiten
+können):
+
+* Ist sie symmetrisch (wie z. B. kugelförmig oder ellipsoid)
+oder asymmetrisch (z. B. so, dass sich ein Bereich hoher
+Datenkonzentration/-dichte an einem Rand oder in einer "Ecke"
+der Punktewolke zeigt)?
+
+* Sind Cluster ("Klumpen") erkennbar?
+
+* Ist ein Trend (sprich ein tendenzieller Zusammenhang zw. x-
+und y-Variable) sichtbar oder nicht? Wenn ja, ist er positiv
+oder negativ, ist er linear oder "nur" monoton, ist er
+"stark" oder "schwach"? (Was könnte hier mit "stark" und
+"schwach" gemeint sein?)
+
+* Ist der Trend "durchgängig" oder ist er auf evtl. vorliegende
+Cluster zurückzuführen?
+
+* Liegen einzelne "Ausreißer" vor? (Was könnte das wohl sein?) 
+
+Auf all die obigen Konzepte werden wir im Kurs noch näher eingehen.

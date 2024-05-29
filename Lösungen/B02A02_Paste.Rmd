@@ -1,0 +1,80 @@
+---
+title: "R1 SoSe 2024: Bl. 2, A. 2"
+author: "Gerrit Eichner"
+date: "9. 5. 2024"
+output: html_document
+---
+
+# Zur Verwendung von `paste`
+
+Verwendete Software: `r R.version.string`
+
+## Die Daten 
+
+"Von Hand" erfasst:
+```{r datenerfassung}
+x <- c(0.61, 0.79, 0.83, 0.66, 0.94, 0.78, 0.81,
+       0.60, 0.88, 0.90, 0.75, 0.86, 0.74, 0.84)
+y <- c(1.01, 0.13, 1.73, 0.67, 0.56, 0.99, 0.49,
+       0.72, 0.13, 0.48, 0.98, 0.08, 1.23, 0.87)
+```
+
+
+## a) Der Vektor der x-Ordnungsstatistiken (kurz x-OSn)
+```{r x-osn}
+(xOS <- sort(x))
+```
+
+
+
+## b) Der `character`-Vektor zur "Präsentation" der x-OSn
+```{r x-praesentation}
+n <- length(x)
+paste("x(", 1:n, ":", n, ") = ", xOS, sep = "")
+```
+
+Dasselbe:
+```{r x-praesentation-2, eval=FALSE}
+paste0("x(", 1:n, ":", n, ") = ", xOS)
+```
+
+
+## c) Der Vektor der y-Konkomitanten zu den x-OSn
+```{r y-konko}
+(yKonko <- y[order(x)])
+```
+
+Zur Überprüfung vergleiche:
+```{r check}
+rbind(x, y)
+rbind(xOS, yKonko)
+```
+
+
+## d) Der `character`-Vektor zur "Präsentation" der x-OSn samt ihrer y-Konkomitanten
+```{r x-und-y-praesentation}
+xpart <- paste0("x(", 1:n, ":", n, ")")
+ypart <- paste0("y[", 1:n, ":", n, "]")
+paste0("(", xpart, ", ", ypart,
+       ") = (", xOS, ", ", yKonko, ")")
+```
+
+
+## e) Der `character`-Vektor von d) in "schöner" Formatierung
+(Und als "Einzeiler" ohne Hilfsgrößen)
+```{r formatierung}
+paste0("(x(", format(1:n), ":", n, "), y[",
+       format(1:n), ":", n, "]) = (", 
+       format(xOS), ", ", format(yKonko), ")")
+```
+
+"Verschönerung" durch führende Nullen mit `formatC`
+(für Details siehe Hilfeseite zu `formatC`):
+```{r formatC-verschoenerung, eval=FALSE}
+  paste0("(x(", formatC(1:n, width = 2, flag = 0),
+                ":", n,
+           "), y[", formatC(1:n, width = 2, flag = 0),
+                    ":", n,
+           "]) = (", format(xOS), ", ", format(yKonko),
+                ")")
+```

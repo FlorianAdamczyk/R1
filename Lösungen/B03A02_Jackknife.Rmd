@@ -1,0 +1,120 @@
+---
+title: 'R1 SoSe 2024: Bl. 3, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Matrix aller Jackknife-Sample eines Datensatzes
+
+Verwendete Software: `r R.version.string`
+
+Erzeugung eines "Übungsdatensatzes" $Z = (1, ..., 10)$
+und der $(10 \times 10)$-Matrix seiner Kopien in jeder Zeile:
+```{r uebungsdaten}
+Z <- 1:10;      n <- length(Z)
+(JackMat0 <- matrix(Z, ncol = n, nrow = n, byrow = TRUE))
+```
+
+### Lösung A
+
+Erst linke untere Dreiecksmatrix ohne(!) Hauptdiagonale aus
+`JackMat0` in `luMat` speichern (als Vektor!), dann erste Spalte
+von `JackMat0` entfernen und schließlich `luMat` in das "echte"
+linke untere Dreieck (also ohne(!) die "Hauptdiagonale") der
+neuen" Matrix `JackMat` einlaufen lassen:
+```{r loesung-A-1}
+(luMat <- JackMat0[lower.tri(JackMat0, diag = FALSE)])
+```
+`diag = FALSE` ist oben eigtl. unnötig, da Voreinstellung.
+
+*Hinweis:* `row(JackMat0) > col(JackMat0)` liefert dasselbe
+wie `lower.tri(JackMat0, diag = FALSE)`.
+
+
+```{r loesung-A-2}
+(JackMat <- JackMat0[, -1])
+
+JackMat[lower.tri(JackMat, diag = FALSE)] <- luMat
+        # = row(JackMat) > col(JackMat)
+JackMat
+```
+
+
+### Lösung B
+
+`JackMat` *zeilenweise* zu einem Vektor zusammengehängen, was durch
+Transponieren von `JackMat0` erreicht wird, dann dessen Elemente
+$0n + 1,$ $1n + 2,$ $2n + 3,$ $3n + 4,$ $...,$ $(n-2)n + n-1,$
+$(n-1)n + n$ eliminieren (was dem Herausschneiden der Hauptdiagonalen
+der Ausgangsmatrix entspricht) und schließlich den Resultatvektor
+zeilenweise in eine $(n-1)$-spaltige Matrix einlaufen lassen:
+```{r loesung-B}
+matrix(t(JackMat0)[-(0:(n-1) * n + 1:n)], ncol = n-1,
+       byrow = TRUE)
+```
+
+
+### Lösung C ("(c)" Jan Stolle, 29. 5. 2009)
+
+```{r loesung-C}
+apply(matrix(rep(Z, each = length(Z) - 1), nrow = length(Z)),
+      2, rev)
+```
+
+
+### Lösung D ("(c)" Florian Schindler, 8. 5. 2015):
+
+```{r loesung-D}
+(Extrakt <- matrix(1:n, nrow = n, ncol = n) - diag(1:n))
+matrix(Z[Extrakt], nrow = n , ncol = n - 1, byrow = TRUE)
+```
+Funktioniert diese Lösung so auch für einen allgemeinen
+Datensatz $z_1, \ldots, z_n$?
+
+
+### Lösung E ("(c)" Johannes Klass, 15. 5. 2015):
+
+```{r loesung-E}
+roJackMat <- (JackMat0 * upper.tri(JackMat0))[, -1]
+luJackMat <- (JackMat0 * lower.tri(JackMat0))[, -n]
+roJackMat + luJackMat
+```
+
+
+### Lösung F ("(c)" Michael Allgeier, 3. 5. 2016):
+
+```{r loesung-F-1}
+JackMat <- JackMat0
+(JackMat[upper.tri(JackMat, diag = TRUE)] <-
+    JackMat[upper.tri(JackMat, diag = FALSE)])
+```
+Obiges verschiebt die Werte oberhalb der Diagonalen um 1 nach links.
+Die Warnung wird in Kauf genommen, da im nächsten Befehl die letzte,
+überflüssige Spalte gelöscht wird (in der nun auch falscher Inhalt
+steht), was die $(n \times (n-1))$-Matrix liefert:
+```{r loesung-F-2}
+JackMat[, -n]
+```
+
+
+### Lösung G ("(c)" Konstantin Löw, 3. 5. 2016):
+
+Nicht-Diagonalelemente selektieren, dann transponiert
+und zeilenweise in $(n \times (n-1))$-Matrix einlaufen lassen:
+```{r loesung-G}
+matrix(t(JackMat0)[row(JackMat0) != col(JackMat0)],
+       ncol = n-1, byrow = TRUE)
+```
+
+
+------
+
+## Allgemeiner Tipp
+
+Wenn komplizierter R-Code (inbes. wenn er - ganz schlechter Stil! -
+als "Einzeiler" daherkommt) nachvollzogen werden muss, sollten Sie
+ihn in kleine R-Schritte zerlegen, diese einzeln ausführen lassen
+und die Zwischenresultate ansehen und kontrollieren, um so die
+Entstehung des Endergebisses zu verstehen.

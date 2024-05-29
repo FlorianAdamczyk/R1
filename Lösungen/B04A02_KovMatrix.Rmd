@@ -1,0 +1,103 @@
+---
+title: 'R1 SoSe 24: Bl. 4, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Empirische Kovarianz- und Korrelationsmatrix eines multivariaten Datensatzes
+
+Verwendete Software: `r R.version.string`
+
+Die Daten von Blatt 2 als Beispielvektoren:
+```{r Beispieldaten}
+x <- c(0.61, 0.79, 0.83, 0.66, 0.94, 0.78, 0.81,
+       0.60, 0.88, 0.90, 0.75, 0.86, 0.74, 0.84)
+y <- c(1.01, 0.13, 1.73, 0.67, 0.56, 0.99, 0.49,
+       0.72, 0.13, 0.48, 0.98, 0.08, 1.23, 0.87)
+(M <- cbind(x, y))
+```
+
+## Die empirische Kovarianzmatrix
+
+In der $(n \times p)$-Matrix `M` sind $p$ Vektoren der Dimension $n$ als
+ihre $p$ Spalten "nebeneinander geschrieben". Dann ist, wie man zeigen
+kann, die empirische Kovarianzmatrix
+$$
+ \text{Cov}(M) = \frac{1}{n-1} \cdot M' \cdot (I - \frac{1}{n} \cdot J) \cdot M,
+ \hspace{30mm} (1)
+$$
+wobei $I$ die $(n \times n)$-Einheitsmatrix und $J$ die $(n \times n)$-Matrix
+ist, die nur Einsen enthält. (Siehe Tipp auf Übungsblatt.)
+
+
+"Entnimm" $n$ der Matrix `M`:
+```{r Stichprobenumfang}
+n <- nrow(M)
+```
+
+### Implementation von Gl. (1)
+
+Die empirische Kovarianzmatrix ist somit gemäß Gl. (1):
+```{r Cov}
+(CovM <- crossprod(M, diag(n) - matrix(1/n, n, n)) %*% M / (n - 1))
+```
+*Memo:* Das Matrixprodukt $A' * B$ wird in R durch `crossprod(A, B)`
+effizienter als realisiert durch `t(A) %*% B`.
+
+
+
+## Die empirische Korrelationsmatrix
+
+Für die empirische Korrelationsmatrix gilt:
+$$
+ \text{Cor}(M) = \text{Diag}(\text{Cov}(M))^{-1/2} \cdot \text{Cov}(M) \cdot
+                 \text{Diag}(\text{Cov}(M))^{-1/2},
+ \hspace{30mm} (2)
+$$
+wobei Diag$(A)$ zu einer quadratischen Matrix $A$ die Diagonalmatrix sei,
+die dieselbe Diagonale wie $A$ hat, und $B^{-1/2}$ für die Matrix $B$ hier
+_elementweise_ interpretiert wird. (Beachte, dass in Gl. (2) die Bedeutung
+von Diag(.) eine andere ist als die der R-Funktion `diag`!)
+
+Andere Lösung: $V$ sei der Vektor der Wurzeln der Diagonalelemente von
+Cov$(M)$. Dann gilt mit _elementweiser_ Interpretation der Division "/",
+aber "üblicher" Interpretation der Vektormultiplikation "$\cdot$":
+$$
+ \text{Cor}(M) = \text{Cov}(M) / (V \cdot V')
+  \hspace{30mm} (3)
+$$
+Beachte, dass in $V \cdot V'$ der Spalten(!)vektor $V$ mit dem
+Zeilen(!)vektor $V'$ multipliziert wird, d. h., es wird das "äußere
+Produkt" von $V$ mit sich selbst berechnet, was eine Matrix(!) liefert.
+
+
+### Implementation von Gl. (3)
+
+Die empirische Korrelationsmatrix ist somit gemäß Gl. (3):
+```{r Cor}
+V <- sqrt(diag(CovM))
+(CorM <- CovM / (V %o% V))
+```
+
+
+## Beispiel
+
+Anhand der "Old Faithful Geyser"-Daten:
+```{r Anwendung auf Old Faithful-Daten}
+M <- cbind(faithful$waiting, faithful$eruptions)
+n <- nrow(M)
+
+(CovM <- crossprod(M, diag(n) - matrix(1/n, n, n)) %*% M / (n - 1))
+
+V <- sqrt(diag(CovM))
+(CorM <- CovM / (V %o% V))
+```
+
+### Zur "Kontrolle"
+
+Die Ergebnisse der in R eingebauten Funktionen:
+```{r Kontrolle}
+cov(M);     cor(M)
+```
