@@ -1,0 +1,127 @@
+---
+title: 'R1 SoSe 24: Bl. 5, A. 1'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Weiteres Experimentieren mit dem Data Frame `cu.summary`
+
+Verwendete Software: `r R.version.string`
+
+### Vorbereitung
+
+Ergänzung von Aufgabe 3 auf Blatt 4. Erneutes Zur-Verfügung-Stellen des
+Objektes `cu.summary` aus dem Paket `rpart` (wie in A. 2 von Bl. 3):
+```{r cu.summary}
+data(cu.summary, package = "rpart");    ls()
+```
+
+### a) Unterschiede zwischen `apply` und `lapply` bzw. `sapply`
+
+Beachte den Unterschied zwischen den Resultaten von folgender `apply`-Anwendung
+und nachfolgender `lapply`-Anwendung: Offenbar hat `apply` *vor* der eigentlichen
+Anwendung von `class` auf die Variablen von `cu.summary` eine (temporäre!)
+Änderung der Variablen-Modi in `character` vorgenommen.
+```{r a-apply-vs-lapply}
+apply(cu.summary, 2, class)
+
+lapply(cu.summary, class)
+```
+
+
+Folgendes liefert inhaltlich dasselbe wie `lapply`, und auch strukturell, da
+eine **S**implifizierung der Resultatliste zu einem Vektor nicht möglich ist (und
+zwar wegen der Komponente `Reliability`, in der ein zwei-elementiger Vektor steht,
+im Gegensatz zu den übrigen, ein-elementigen Vektoren):
+```{r a-sapply}
+sapply(cu.summary, class)
+```
+
+Das Bsp. für `length` und `summary` lassen wir aus Platzgründen weg.
+
+
+### b) Umwandlung in eine Matrix
+
+Die Einträge von `cu.summary` (mit den vormals unterschiedlichen Modi `numeric`,
+`factor` und `ordered`) werden bei der erzwungenen, temporären Umwandlung des
+Data Frames in eine Matrix offenbar alle in den einheitlichen Modus `character`
+konvertiert (wobei wir hier nur die ersten 10 Zeilen zeigen):
+```{r b}
+head(as(cu.summary, "matrix"), 10)
+```
+
+Alternative "Kurzform":
+```{r b-2}
+head(as.matrix(cu.summary), 10)
+```
+
+
+### c) with
+
+Siehe die Hilfeseite von `with` und/oder Paragraph 2.10.9 im V-Skript.
+
+
+### d) `unique` vs. `levels`
+
+Ohne `with(cu.summary, ....)` wäre im Folgenden stets `cu.summary$Type`
+anstelle von nur `Type`zu verwenden.
+
+```{r d-1}
+with(cu.summary, unique(Type))
+
+with(cu.summary, levels(Type))
+```
+Bis auf die Reihenfolge in der Ausgabe des Resultats und die Verwendung bzw.
+Nicht-Verwendung von Anführungszeichen scheinen `unique` und `levels` bei der
+Anwendung auf einen Faktor dasselbe zu liefern. Beachte jedoch den folgenden
+Unterschied:
+```{r d-2}
+with(cu.summary, class(unique(Type)))
+with(cu.summary, class(levels(Type)))
+```
+Fazit: `unique` übernimmt den Modus seines Arguments -- hier `factor` -- fürs
+Resultat, während `levels` den `character`-Vektor der Levels liefert.
+
+
+Entsprechend (aber für `Country` beides zusammen in einem `with`; beachte,
+dass dabei für den Ausdruck der Resultate der nicht-letzten Befehle print
+nötig ist):
+```{r d-3}
+with(cu.summary, {
+  print(unique(Country))
+  levels(Country)
+  })
+```
+
+
+### e) Kontingenztafel zu `Country` und `Type`
+
+```{r e}
+with(cu.summary, table(Country, Type))
+```
+
+
+### f) Faktorgruppierte Anwendung: `tapply`
+
+Mittlere Preise der Fahrzeugtypen:
+```{r f-1a}
+with(cu.summary, tapply(Price, Type, mean))
+```
+Standardabweichungen der Preise der Fahrzeugtypen:
+```{r f-1b}
+with(cu.summary, tapply(Price, Type, sd))
+```
+Variationskoeffizienten der Preise der Fahrzeugtypen:
+```{r f-1c}
+with(cu.summary,
+     tapply(Price, Type, sd) / tapply(Price, Type, mean))
+```
+
+Oder unter Verwendung einer selbstdefinierten (hier "anonymen") Funktion,
+deren Konzept im V-Skriptkapitel 6 vorgestellt wird:
+```{r f-2}
+with(cu.summary,
+     tapply(Price, Type, function(x) sd(x) / mean(x)))
+```
