@@ -1,0 +1,112 @@
+---
+title: 'R1 SoSe 24: Bl. 6, A. 3'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Einlesen und EDA der Mieten-Daten
+
+Verwendete Software: `r R.version.string`
+
+**Annahme:** Die Datei "MietenFrankfurt" befindet sich in demselben Verzeichnis, in dem R gerade läuft.
+
+```{r import}
+(Mieten <- scan(file = "MietenFrankfurt"))
+```
+
+### a) "Stem-and-leaf"-Diagramme
+
+```{r a-stem-and-leaf-diagramme1}
+stem(Mieten)
+```
+
+Zur Wirkung von `scale`:
+
+```{r a-stem-and-leaf-diagramme2}
+stem(Mieten, scale = 1/2)
+stem(Mieten, scale = 2)
+stem(Mieten, scale = 3)
+```
+
+### b) Flächennormierte Histogramme
+
+**Beachte** im Folgenden, was die Voreinstellung (!) `freq = TRUE` für eine y-Achseneinteilung liefert!
+
+```{r b-histogramme1, fig.show='hold', out.width='50%'}
+hist(Mieten)
+hist(Mieten, freq = FALSE)  # Zum Vergleich!
+```
+
+#### Angabe der ungefähren Anzahl der "breaks"
+
+```{r b-histogramme2, fig.show='hold', fig.keep='all', out.width='50%'}
+hist(Mieten, freq = FALSE, breaks =  4, main = "'breaks = 4'")
+hist(Mieten, freq = FALSE, breaks = 10, main = "'breaks = 10'")
+hist(Mieten, freq = FALSE, breaks = 15, main = "'breaks = 15'")
+hist(Mieten, freq = FALSE, breaks = 20, main = "'breaks = 20'")
+hist(Mieten, freq = FALSE, breaks = 25, main = "'breaks = 25'")
+hist(Mieten, freq = FALSE, breaks = 40, main = "'breaks = 40'")
+```
+
+**Beachte**, wie sich bei Veränderung der angegebenen Anzahl für "breaks" die tatsächliche Anzahl gelegentlich *nicht* ändert.
+
+#### Explizite Angabe äquidistanter "breaks"
+
+```{r b-histogramme3}
+hist(Mieten, freq = FALSE, breaks = seq(500, 4000, by = 250), main = "")
+```
+
+**Frage:** Liefert \`freq = TRUE' anderes?
+
+Andere x-Achseneinteilungen:
+
+```{r b-histogramme4, fig.show='hold', fig.keep='all', out.width='50%'}
+hist(Mieten, freq = FALSE, breaks = seq(500, 4000, by = 200), main = "a")
+hist(Mieten, freq = FALSE, breaks = seq(500, 4000, by = 100), main = "b")
+
+hist(Mieten, freq = FALSE, breaks = seq(800, 3800, by = 250), main = "c")
+hist(Mieten, freq = FALSE, breaks = seq(800, 3800, by = 200), main = "d")
+
+hist(Mieten, freq = FALSE, breaks = seq(800, 3800, by = 100), main = "e")
+hist(Mieten, freq = FALSE, breaks = seq(800, 3800, by =  50), main = "f")
+```
+
+#### Explizite Angabe *nicht* äquidistanter "breaks"
+
+```{r b-histogramme5}
+hist(Mieten, freq = FALSE, breaks = c(seq(500, 2500, by = 200), 4000), main = "")
+```
+
+**Frage:** Was passiert hier bei `freq = TRUE`?
+
+Vergleiche nochmal äquidistante mit *nicht* äquidistanten "breaks" und beachte die automatische Änderung der y-Achseneinteilung!
+
+```{r b-histogramme6, fig.show='hold', out.width='50%'}
+hist(Mieten, breaks = seq(500, 4000, by = 200), main = "äquidistant")
+hist(Mieten, breaks = c(seq(500, 2500, by = 200), 4000), main = "nicht äquidistant")
+```
+
+### c) Kerndichteschätzer
+
+```{r c-kernschaetzer1}
+plot(density(Mieten))
+```
+
+**Beachte**, was im Untertitel der Grafik zur Bandbreite (= "bandwidth") steht.
+
+#### Experimente mit verschiedenen Bandbreiten
+
+```{r c-kernschaetzer2, fig.show='hold', out.width='50%'}
+plot(density(Mieten, bw = 100), main = "a")
+
+plot(density(Mieten, bw = 200), main = "b")
+plot(density(Mieten, bw = 400), main = "c")
+
+plot(density(Mieten, bw = 50), main = "d")
+plot(density(Mieten, bw = 25), main = "e")
+```
+
+#### Fazit
+Größere Bandbreiten machen die Schätzer-Kurve glatter, kleinere machen sie "unglatter".

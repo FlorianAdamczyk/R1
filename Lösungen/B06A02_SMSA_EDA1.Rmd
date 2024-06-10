@@ -1,0 +1,86 @@
+---
+title: 'R1 SoSe 24: Bl. 6, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Univariate grafische EDA diverser SMSA-Daten
+
+Verwendete Software: `r R.version.string`
+
+#### Vorbereitung: Datenimport
+Wie in Aufgabe 1 dieses Blattes i. V. m. Aufgabe 3 auf Blatt 5:
+```{r import-und_vorber}
+SMSA.df <- read.table("SMSA", skip = 3,
+                      header = TRUE, row.names = "ID")
+names(SMSA.df) <- c("Area", "Pop", "CityPop", "PopOver65",
+                    "Physicians", "HospBeds", "Graduates",
+                    "LaborForce", "Income", "Crimes", "Region")
+tmp <- scan(file = "SMSAID", sep = "\t", skip = 3,
+            what = list(ID1 = 0, City1 = "",
+                        ID2 = 0, City2 = "",
+                        ID3 = 0, City3 = ""))
+smsaid <- with(tmp, list(ID = c(ID1, ID2, ID3),
+                         City = c(City1, City2, City3)))
+rownames(SMSA.df) <- smsaid$City
+SMSA.df$Region <- factor(SMSA.df$Region, levels = 1:4,
+                         labels = c("NE", "NC", "S", "W"))
+```
+
+### a), b), c)
+
+Wir werden die Daten einer jeden der drei Variablen nach Regionen
+getrennt durch "parallele" Boxplots veranschaulichen.
+
+#### Boxplots mit Formelvariante
+
+**Beachte:** Die Formelvariante der Funktion `boxplot` benötigt
+weder `split` noch `with`, geschweige denn `attach`!
+
+```{r boxplots-mit-formeln}
+boxplot(Physicians ~ Region, data = SMSA.df, xlab = "Geografische Region",
+        ylab = "Anzahl praktizierender Ärzte/innen")
+
+boxplot(Graduates ~ Region, data = SMSA.df, xlab = "Geografische Region",
+        ylab = "Prozent an High-School-AbsolventInnen",
+        ylim = c(0, 100))  # Wie oben.
+
+boxplot(Income ~ Region, data = SMSA.df, xlab = "Geografische Region",
+        ylab = "Privates Gesamteinkommen")
+```
+
+
+#### Boxplots ohne Formelvariante
+
+**Beachte:** `boxplot`-Aufrufe mit Hilfe der Funktion  `split`:
+
+Dazu untersuchen wir zunächst, was `split` liefert.
+```{r split-test}
+with(SMSA.df, split(Physicians, Region))
+```
+
+**Ergebnis:** Eine Liste mit einer Komponente pro Level des Faktors
+Region; hier also vier Komponenten namens "NE", "NC", "S" und "W".
+In diese Komponenten sind die Werte aus Physicians gemäß der
+Levels von Region aufgeteilt ("gesplittet") worden.
+
+Nun die `boxplot`-Aufrufe mit Hilfe von `split`:
+```{r boxplots-mit-split}
+with(SMSA.df,
+     boxplot(split(Physicians, Region), xlab = "Geografische Region",
+             ylab = "Anzahl praktizierender Ärzte/innen") # \304rzte
+     )
+
+with(SMSA.df, 
+     boxplot(split(Graduates, Region), xlab = "Geografische Region",
+             ylab = "Prozent an High-School-AbsolventInnen",
+             ylim = c(0, 100)) # Um gesamte %-Skala zu zeigen.
+     )
+
+with(SMSA.df,
+     boxplot(split(Income, Region), xlab = "Geografische Region",
+             ylab = "Privates Gesamteinkommen")
+     )
+```

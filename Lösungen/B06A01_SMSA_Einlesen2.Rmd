@@ -1,0 +1,67 @@
+---
+title: 'R1 SoSe 24: Bl. 6, A. 1'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Einlesen des SMSA-Datensatzes mit `read.table` und Aufbereiten
+
+Verwendete Software: `r R.version.string`
+
+### a) Einlesen der Datei "SMSA" mit `read.table`
+
+**Annahme:** Die Datei "SMSA" befindet sich im selben Verzeichnis,
+in dem R gerade läuft.
+
+```{r a-import-smsa}
+SMSA.df <- read.table("SMSA", skip = 3,
+                      header = TRUE, row.names = "ID")
+```
+
+Strukturkontrolle:
+```{r a-smsa-kontrolle}
+str(SMSA.df)
+```
+
+
+### b) Benennung der Data Frame-Spalten
+```{r b-smsa-spaltenbenennung}
+names(SMSA.df) <- c("Area", "Pop", "CityPop", "PopOver65",
+                    "Physicians", "HospBeds", "Graduates",
+                    "LaborForce", "Income", "Crimes", "Region")
+```
+
+Stichprobenartige Inhaltskontrolle des Data Frames durch Ansicht
+des Ausschnitts seiner ersten 3 und letzten 2 Zeilen:
+```{r b-kontrolle}
+head(SMSA.df, 3)
+tail(SMSA.df, 2)
+```
+
+
+### c) Aufbereitung des Data Frames `SMSA.df`
+
+Dazu: Einlesen der Datei "SMSAID" mit `scan` wie in Aufgabe 3 von Blatt 5
+unter der **Annahme**, dass die Datei "SMSAID" sich im selben Verzeichnis
+befindet, in dem R gerade läuft:
+```{r c-import-smsaid}
+tmp <- scan(file = "SMSAID", sep = "\t", skip = 3,
+            what = list(ID1 = 0, City1 = "",
+                        ID2 = 0, City2 = "",
+                        ID3 = 0, City3 = ""))
+smsaid <- with(tmp, list(ID = c(ID1, ID2, ID3),
+                         City = c(City1, City2, City3)))
+```
+
+
+Zeilenbenennung, Umwandlung der Komponente "Region" in einen Faktor
+und Kontrolle via `str` und `summary`:
+```{r c-aufbereiten, results='hold'}
+rownames(SMSA.df) <- smsaid$City
+SMSA.df$Region <- factor(SMSA.df$Region, levels = 1:4,
+                         labels = c("NE", "NC", "S", "W"))
+str(SMSA.df)
+summary(SMSA.df)
+```
