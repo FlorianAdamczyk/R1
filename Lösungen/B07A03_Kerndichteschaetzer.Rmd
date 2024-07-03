@@ -1,0 +1,234 @@
+---
+title: 'R1 SoSe 24: Bl. 7, A. 3'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Punktweise Berechnung eines Kern-Dichteschätzers zu einem Datensatz
+
+Verwendete Software: `r R.version.string`
+
+### Vorbereitungen
+
+**Annahme:** Die Datei "MietenFrankfurt" befindet sich im selben
+Verzeichnis, in dem R gerade läuft.
+
+Einlesen der Daten aus "MietenFrankfurt", Bestimmung der Ordnungsstatistiken (OSn),
+d. h. sortieren der Daten, und des Stichprobenumfangs $n$:
+```{r import-os-und-n}
+x <- scan(file = "MietenFrankfurt")
+xOS <- sort(x);   n <- length(x)
+```
+
+Wahl der Bandbreite des Kern-Dichteschätzers $f_n$:
+```{r bandbreite}
+bn <- 100
+```
+
+Festlegung der Anzahl $k$ und der eigentlichen Stützstellen $t_1, \ldots, t_k$,
+an denen $f_n$ ausgewertet werden soll:
+```{r stuetzstellen}
+k <- 11;   stuetzstellen <- seq(500, 4000, length = k)
+```
+
+
+### a) Die Differenzenmatrix $D$
+
+Wir berechnen (mit `outer`) zunächst die $(n \times k)$-Matrix $D$ aller paarweisen
+Differenzen $x_{i:n} - t_j$ der OSn $x_{i:n}$ und der Stützstellen $t_j$. Diese wird
+dann elementweise durch die Bandbreite $b_n$ dividiert, sodass in der Ergebnismatrix
+`D.dividedby.bn` eine Zeile pro OS und eine Spalte pro Stützstelle steht:
+```{r a-D}
+D.dividedby.bn <- outer(xOS, stuetzstellen, FUN = "-") / bn
+```
+
+Hinweis: Minimal effizienter, da weniger Divisionen (nicht ausgeführt):
+```{r a-D-2, eval=FALSE}
+D.dividedby.bn <- outer(xOS / bn, stuetzstellen / bn, FUN = "-")
+```
+
+
+### b) Die Indikatorenmatrix $Ind$
+
+Nun bilden wir die $(n \times k)$-Matrix $Ind$ aller Indikatoren $1_{\{-1 < D_{ij}/b_n
+\le 1\}} = 1_{\{D_{ij}/b_n > -1 \text{ und } D_{ij}/b_n \le 1\}}$, indem die
+Elemente von `D.dividedby.bn` mit -1 und 1 verglichen werden und die zwei logischen
+Ergebnismatrizen durch ein logisches "Und" (`&`) zur logischen Ergebnismatrix `Ind`
+verknüpft werden:
+```{r b-Ind}
+Ind <- (D.dividedby.bn > -1)  &  (D.dividedby.bn <= 1)
+```
+
+*Bemerkung:* Die Klammern könnten hier sogar weggelassen werden. Siehe `?Syntax`!
+
+
+### c) Der Kern-Dichteschätzer
+
+Der Wert des Kern-Dichteschätzers $f_n$ an einer Stützstelle $t_j$ ist 
+$1/(2nb_n) \cdot \sum_{i=1}^n 1_{\{-1 < D_{ij}/b_n \le 1\}}$, also die
+Summe der Elemente der $j$-ten Spalte der Matrix $Ind$ dividiert durch
+$2nb_n$. Also müssen alle Spaltensummen von $Ind$ berechnet und durch
+$2nb_n$ dividiert werden, um $f_n$ an den Stützstellen $t_1, \ldots, t_k$
+zu erhalten:
+```{r c-fn}
+fn <- rep(1, nrow(Ind)) %*% Ind / (2*n*bn)
+```
+
+Für ein "schöneres" Ergebnis (nicht ausgeführt):
+```{r c-fn-2, eval=FALSE}
+fn <- drop(rep(1, nrow(Ind)) %*% Ind) / (2*n*bn)
+```
+Hierbei sorgt `drop` dafür, dass für die aus der Vektor-Matrix-Multiplikation
+erhaltene $(1 \times k)$-*Matrix* die überflüssige Zeilendimension "fallen"
+gelassen wird und ein *Vektor* resultiert.
+
+Eine sehr effiziente Berechnung der Spaltensummen erhielten wir durch die
+(hier in der Aufgabenstellung "nicht erlaubte") Verwendung von `colSums`
+(nicht ausgeführt):
+```{r c-fn-3, eval=FALSE}
+fn <- colSums(Ind) / (2*n*bn)
+```
+
+
+### d) Der (approximative) Graph von $f_n$
+
+Hier produzieren wir eine grafische Darstellung der Werte von $f_n$ an den
+ausgewählten Stützstellen als Polygonzug entlang jener Stützstellen. D. h.,
+wir fertigen den Streckenzug durch die Punkte $(t_j, f_n(t_j))$ für $j = 1,
+\ldots, k$ an:
+```{r d-grafik}
+plot(x = stuetzstellen, y = fn, type = "l")
+rug(x, col = "blue")   # "rug plot" der Rohdaten
+```
+
+
+### e) Variationen in $k$ und $b_n$
+
+Hier variieren wir $k$:
+```{r e-k-variationen}
+k <- 50  # 50, 250, 1000, 5000
+stuetzstellen <- seq(500, 4000, length = k)
+
+D.dividedby.bn <- outer(xOS / bn, stuetzstellen / bn, FUN = "-")
+Ind <- (D.dividedby.bn > -1)  &  (D.dividedby.bn <= 1)
+fn <- colSums(Ind) / (2*n*bn)
+
+plot(x = stuetzstellen, y = fn, type = "l")
+rug(x, col = "blue")
+```
+
+**Frage:** Was beobachten Sie als Wirkung einer Erhöhung von $k$?
+
+
+Und hier variieren wir $b_n$:
+```{r e-b-variationen}
+bn <- 50 # 50, 100, 200, 500, 2000
+
+D.dividedby.bn <- outer(xOS / bn, stuetzstellen / bn, FUN = "-")
+Ind <- (D.dividedby.bn > -1)  &  (D.dividedby.bn <= 1)
+fn <- colSums(Ind) / (2*n*bn)
+
+plot(x = stuetzstellen, y = fn, type = "l")
+rug(x, col = "blue")
+```
+
+**Frage:** Was beobachten Sie als Wirkung einer Vergrößerung von $b_n$
+und was als Wirkung einer Verkleinerung?
+
+
+**Weitere Frage:** Wie sieht $f_n$ außerhalb des betrachteten Wertebereichs aus?
+
+---
+
+### Ergänzungen
+
+Um die Funktionsweise eines Kern-Dichteschätzers zu veranschaulichen, zeichnen
+wir zusätzlich zum (approximativen) Graph von $f_n$ für jedes Datum $x_{i:n}$
+"seinen" Summanden , der zu $f_n$ beiträgt, als Funktion von $t$ ein, also
+$t \to K((x_{i:n} - t)/b_n) / (n*b_n)$ ein, wobei $K$ hier der Rechteckskern
+der Aufgabenstellung ist. Allerdings verwenden wir weniger Daten als eingangs,
+damit die Effekte besser erkennbar sind.
+
+Zunächst: Auswahl eines Teils der Daten, hier ca. 1/5:
+```{r ergaenzung-1}
+xOS <- sort(x)[c(T, rep(F, 4))] # 1., 6., 11., 16., ... Datum.
+n <- length(xOS)
+```
+
+Sodann Berechnung des Dichteschätzers für viele und somit dicht beieinander
+liegende Stützstellen:
+```{r ergaenzung-2}
+k <- 5000
+bn <- 50
+
+stuetzstellen <- seq(500, 4000, length = k)
+
+D.dividedby.bn <- outer(xOS / bn, stuetzstellen / bn, FUN = "-")
+Ind <- (D.dividedby.bn > -1)  &  (D.dividedby.bn <= 1)
+fn <- colSums(Ind) / (2*n*bn)
+```
+
+Hier der (approximative) Graph von $f_n$ und zusätzlich für jedes Datum
+$x_{i:n}$ wird "sein" Summand $t \to K((x_{i:n} - t)/b_n) / (n*b_n)$
+eingezeichnet, der zu $f_n$ beiträgt, wobei $K$ hier der Rechteckskern
+der Aufgabenstellung ist. (Im Vorgriff auf §7.5.6 wird hierzu die
+nützliche Fkt. `matlines` verwendet.)
+```{r ergaenzung-3}
+plot(x = stuetzstellen, y = fn, type = "l")
+rug(xOS, col = "blue")
+matlines(x = stuetzstellen, y = t(Ind)/(2*n*bn), lty = 1)
+```
+
+**Beachte 1:** Transponieren durch `t` in `matlines` ist nötig,
+weil die *Spalten* (!) von `Ind` zu den Stützstellen gehören.
+
+**Beachte 2:** Für jeden der ca. 40 Datenwerte wird ein Rechteck gezeichnet,
+die sich doch recht stark überlagern und daher nicht gut zu erkennen sind.
+
+
+---
+
+### Weitere Variation: Gaußkern als Kern 
+
+Hier verwenden wir den Gaußkern (= Dichtefunktion der Standardnormalverteilung;
+in R zur Verfügung durch `dnorm`) für $K$ anstelle des Rechteckskerns. Zwei
+entscheidende Unterschiede:
+
+1. Der Gaußkern ist keine Sprungfunktion wie der Rechteckskern, sondern "glatt",
+genauer gesagt sogar beliebig oft differenzierbar;
+
+2. Der Gaußkern hat einen unendlichen Träger, er wird also nirgends 0 (Null).
+(Hingegen ist der Träger des obigen Rechteckskerns auf $[-1, 1]$ beschränkt und
+somit ist der Rechteckskern außerhalb von $[-1, 1]$ 0 (Null).)
+
+Konsequenzen:
+
+1. Der resultierende Kern-Dichteschätzer ist eine glatte Funktion;
+
+2. Der Einfluss eines Datums $x_i$ auf den Funktionswert des Kern-Dichteschätzers
+an der Stelle $x$, also auf $f_n(x)$, wird nie Null, nimmt aber mit wachsendem
+Abstand zwischen $x$ und $x_i$ stetig ab.
+
+
+```{r ergaenzung-4}
+Ind <- apply(D.dividedby.bn, 1, dnorm)
+```
+
+**Beachte:** Nach `apply` stehen in `Ind` (anders als oben) nun die OSn in den
+*Spalten* und die Stützstellen in den *Zeilen*.
+
+
+```{r ergaenzung-5}
+fn <- rowSums(Ind) / (2*n*bn)   # Beachte rowSums!
+plot(x = stuetzstellen, y = fn, type = "l")
+rug(xOS, col = "blue") 
+matlines(x = stuetzstellen, y = Ind/(2*n*bn), lty = 1)
+```
+
+**Beachte:** Transponieren durch `t` ist in `matlines` hier nicht mehr
+nötig, weil jetzt die *Zeilen* von `Ind` zu den Stützstellen gehören.
+
+
+**Frage:** Welche Effekte hätte hier Variationen $k$ und $b_n$?
