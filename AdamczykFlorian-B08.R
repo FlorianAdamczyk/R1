@@ -138,7 +138,7 @@ sgn2 <- function(x) {
   result <- numeric(length(x))
   
   # Durchlaufen des Vektors x
-  for (i in 1:length(x)) {
+  for (i in seq_along(x)) {
     if (x[i] > 0) {
       result[i] <- 1
     } else if (x[i] < 0) {

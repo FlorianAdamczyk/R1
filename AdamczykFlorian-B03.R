@@ -146,7 +146,7 @@ addmargins(table(blut2, tumor2))
 
 
 # Aufgabe 2:
-... keine Zeit ...
+# ... keine Zeit ...
 
 # Aufgabe 3:
 # erstelle df aus den Listen Land, Fl, Bev, BIPKKS, SozSch, SchStu, AlMann, AlFrau, FuEWi, FuEHo, FuESt, Besch, BIPEUR, EExp, EnImp, Strom, Erdgas, Treibhaus2007, TreibhausZiel
@@ -167,7 +167,7 @@ df2 <- df[order(df$BIPEUR),]
 # 4 b)
 # Ermitteln Sie aus den L¨anderdaten in den Spalten der Matrix (also nicht mithilfe der anf¨anglichen (Rohdaten-)Vektoren) sinnvolle (!) Gesamt- oder Durchschnittswerte, die f¨ur die gesamten europ¨aischen L¨ander gelten, sofern m¨oglich! F¨ugen Sie diese ”zusammenfassenden“ Informationen schießlich als eine neue, erste Zeile zur Matrix hinzu. Benennen Sie diese Zeile entsprechend!
 
-df3 <- rbind(c("Europa", mean(df2$Fl), mean(df2$Bev), mean(df2$BIPKKS), mean(df2$SozSch), mean(df2$SchStu), mean(df2$AlMann), mean(df2$AlFrau), mean(df2$FuEWi), mean(df2$FuEHo), mean(df2$FuESt), mean(df2$Besch), mean(df2$BIPEUR), mean(df2$EExp), mean(df2$EnImp), mean(df2$Strom), mean(df2$Erdgas), mean(df2$Treibhaus2007), mean(df2$TreibhausZiel), mean(df2$BIPKKS))
+df3 <- rbind(c("Europa", mean(df2$Fl), mean(df2$Bev), mean(df2$BIPKKS), mean(df2$SozSch), mean(df2$SchStu), mean(df2$AlMann), mean(df2$AlFrau), mean(df2$FuEWi), mean(df2$FuEHo), mean(df2$FuESt), mean(df2$Besch), mean(df2$BIPEUR), mean(df2$EExp), mean(df2$EnImp), mean(df2$Strom), mean(df2$Erdgas), mean(df2$Treibhaus2007), mean(df2$TreibhausZiel), mean(df2$BIPKKS)))
 
 df3
 
@@ -175,6 +175,6 @@ df3
 # Errechnen Sie das Pro-Kopf-BIP in Euro aus den Daten der Matrix 
 
 df4 <- cbind(df2, ProKopf)
-BIP = df2$BIPKKS / df2$Bev)
+BIP = (df2$BIPKKS / df2$Bev)
 
 df4
