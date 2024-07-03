@@ -48,7 +48,7 @@ boxplot(SMSA.df[, -11], main = "Boxplots der metrischen Variablen", xlab = "Vari
 
 # Lassen Sie f¨ur alle metrisch skalierten Variablen in SMSA.df Boxplots (ohne Ber¨ucksichtigung der Regionen) zeichnen unter Zuhilfenahme von lapply, sodass ”separate“ Darstellungen in eigenen Koordinatensystemen entstehen!
 
-par(mfrow = c(2, 5)
+par(mfrow = c(2, 5))
 lapply(SMSA.df[, -11], boxplot, main = "Boxplot", xlab = "Variable", ylab = "Werte")
 
 
@@ -109,5 +109,3 @@ barplot(tapply(smsa_grad, SMSA.df$Region, mean), main = "Prozentsatz der High-Sc
 # c) Grafische Darstellung des privaten Gesamteinkommen nach Region
 
 barplot(tapply(SMSA.df$Income, SMSA.df$Region, sum), main = "Gesamteinkommen nach Region", xlab = "Region", ylab = "Einkommen")
-
-
