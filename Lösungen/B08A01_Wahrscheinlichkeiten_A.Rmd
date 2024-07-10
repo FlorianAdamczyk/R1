@@ -1,0 +1,64 @@
+---
+title: 'R1 SoSe 24: Bl. 8, A. 1'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Wahrscheinlichkeiten in speziellen Verteilungen
+
+Verwendete Software: `r R.version.string`
+
+#### a) $P(X \le 112)$, wobei $X \sim N(\mu = 105, \sigma^2 = 25)$
+```{r a}
+pnorm(q = 112, mean = 105, sd = sqrt(25))
+```
+
+
+#### b) $P(|X| \le 2.1)$, wobei $X \sim t_7$
+
+Memo: Für jede Zufallsvariable gilt (für $a > 0$):
+$P(|X| \le a) = P(-a \le X \le a) = P(X \le a) - P(X < -a) =$  
+$P(X \le a) - P(X \le -a)$ wg. der Stetigkeit der Verteilung von $X$.
+
+Also:
+```{r b-1}
+pt(q = 2.1, df = 7) - pt(q = -2.1, df = 7)
+```
+
+Und des Weiteren ist: $P(X \le a) - P(X \le -a)$
+
+$= P(X \le a) - (1 - P(X \le a))$ wg. der Symmetrie der Verteilung von $X$ um 0
+
+$= 2 * P(X \le a) - 1$.
+
+Also geht auch:
+```{r b-2}
+2 * pt(q = 2.1, df = 7) - 1
+```
+
+
+#### c) $P(U < -1.8)$, wobei $U \sim U(-2, 2)$
+
+Memo: Aufgrund der Stetigkeit der Verteilung von $U$ ist $P(U < x) = P(U \le x)$.
+
+Also geht:
+```{r c}
+punif(q = -1.8, min = -2, max = 2)
+```
+
+
+#### d) $P(X > 6.3)$, wobei $X \sim F_{7, 5}$
+
+```{r d-1}
+pf(q = 6.3, df1 = 7, df2 = 5, lower.tail = FALSE)
+```
+
+Memo: Für jede Zufallsvariable gilt $P(X > x) = 1 - P(X \le x)$.
+
+Also geht auch:
+```{r d-2}
+1 - pf(q = 6.3, df1 = 7, df2 = 5)
+```
+

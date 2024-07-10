@@ -1,0 +1,353 @@
+
+@font-face {
+    font-family: 'Halogen';
+    src: url('https://tylervigen.com/styles/Halogen.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'ToThePoint';
+    src: url('https://tylervigen.com/styles/ToThePoint.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body{
+		max-width:760px;
+		margin:40px auto;
+		margin-top:0px;
+		padding:0 10px;
+		color:#111;
+		background-color:#E5E5E5;
+		background-image:url("https://tylervigen.com/images/hatch.png");
+        font: 16px "Segoe UI", "Helvetica Neue", Arial, sans-serif
+	}
+	
+    .genai-block {
+        background-color: #DFDFDF;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+    }
+	.belowArticle{
+		font:16px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		line-height:1.65;
+	}
+	.summaryBox{
+		font:16px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		background-color:#F8f8f8;
+		padding-left:15px;
+		padding-right:15px;
+		padding-top:1px;
+		padding-bottom:5px;
+		border:1px solid;
+		border-style: dotted;
+		border-color:#AAA;
+		text-align:left
+	}
+	.summaryBox ul{
+		margin-top:-8px;
+		line-height:1;
+	}
+	.content{
+		box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3), 0px 0px 20px rgba(128, 128, 128, 0.1) inset;
+		position: relative;
+		min-height: 18px;
+		padding: 10px;
+		margin-bottom: 18px;
+		background-color: #FEFEFE;
+		border: 1px solid #FEFEFE;
+		padding-top:2%;
+		padding-left:8%;
+		padding-right:8%;
+		text-align:left;
+		font:16px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	}
+
+	.headerlinks{
+	  line-height:1;
+		font:14px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+	}
+
+	a{
+		text-decoration:none;
+		color:#ba0f27;
+	}
+	a:hover{
+		color:#Fa4f67;
+		text-decoration:none;
+	}
+	h1{
+		margin-top:0px;
+		text-align:center;
+	}
+	h2{
+		font-size:18px
+	}
+	h1,h2,h3{
+		line-height:1.2
+	}
+	li{
+		margin: 8px 0;
+	}
+	h4{
+		margin-block-end: 0em;
+	}
+	.list-heading{
+		margin: 26px 0;
+	}
+	hr {
+		border: 0;
+		height: 2px;
+		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+		margin-top:20px;
+		margin-bottom:20px;
+	}
+	.tyler{
+		color:#111;
+	}
+	
+    .cool-button {
+        display: inline-block;
+        padding: 10px 20px;
+        color: white;
+        text-decoration: none;
+        background: linear-gradient(to bottom, #ba0f27, #8c0c1c);
+        border: 1px solid #8c0c1c;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
+
+    .cool-button:hover {
+        background: linear-gradient(to bottom, #8c0c1c, #ba0f27);
+        color: #AEAEAE;
+    }
+	@media only screen and (max-width: 450px) {
+		.content{
+			min-height: 20px;
+			padding: 5px;
+			margin-bottom: 10px;
+			padding-top:5%;
+			padding-left:3%;
+			padding-right:3%;
+            text-align:left;
+		}
+			
+		body{
+			margin:20px auto;
+			margin-top:0px;
+			padding:0 5px;
+			color:#111;
+			background-color:#E5E5E5;
+		}
+	}
+	@media only screen and (max-width: 500px) and (orientation: landscape) {
+        body {
+            font-size: 8px;
+        }
+    }
+
+	.imgbox {
+		display: grid;
+		height: 100%;
+		text-align: center;
+		margin-bottom:36px;
+	}
+	.imglink{
+		font-size:12px;
+	}
+	img {
+		max-width: 100%;
+		max-height: 100vh;
+		margin: auto;
+	}
+	.footnotes{
+		font-size: 12px;
+	}
+	dfn,abbr
+	{
+		font-style: normal;
+		cursor: help;
+	}
+	.f-note {
+		position: relative;
+		left: 2px;
+		bottom: 1ex;
+		color: #005994;
+		font-size: .7em;
+		text-decoration: underline;
+		cursor: pointer;
+		font-weight: bold;
+	}
+	.f-note-sm {
+		position: relative;
+		left: 2px;
+		bottom: 0.1ex;
+		color: #005994;
+		font-size: .7em;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+	table {
+	  border-collapse: collapse;
+	}	
+	.main-table {
+		border-collapse: collapse;
+		margin: 20px 0;
+		min-width: 400px;
+		width:100%:
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+		  margin-left: auto;
+		  margin-right: auto;
+	}
+	.main-table thead tr {
+		background-color: #111;
+		color: #ffffff;
+		text-align: center;
+	}
+	.main-table td {
+		padding: 10px 14px;
+	}
+	.main-table th,
+	.main-table tbody tr {
+		border-bottom: 1px solid #dddddd;
+	}
+
+	.main-table tbody tr:nth-of-type(even) {
+		background-color: #f3f3f3;
+	}
+
+	.main-table tbody tr:last-of-type {
+		border-bottom: 2px solid #900000;
+	}
+	.main-table-label {
+		font-weight: bold;
+		text-align: right;
+	}
+	
+	.emphasize {
+		font-weight: bold;
+		color: #900000;
+	}
+	
+	
+	div.imageTextBlock div.picture-left img {
+		width: 100%;
+	}
+	
+	div.imageTextBlock div.picture-left {
+		float: left;
+		max-width: 50%;
+		overflow: hidden;
+		margin-right: 1em;
+	}
+	ul {
+		display: block;
+		list-style-type: disc;
+		margin-block-start: 0em;
+		margin-block-end: 0em;
+		margin-inline-start: 0px;
+		margin-inline-end: 0px;
+		padding-inline-start: 40px;
+	}
+	.copyleft{
+		font:10px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		line-height:50%;
+	}
+	sup{
+		font: 10px "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+		font-style: italic;
+	}
+
+/*FOOTNOTES*/
+	/* This creates the counter  
+body {
+  counter-reset: cb_counter_var;
+}
+
+/* This increments the counter value and defines 
+the displayed content  
+sup::after {
+  counter-increment: cb_counter_var;
+  content: counter(cb_counter_var);
+}*/
+
+/* This initially hides the footnote (i.e. span)  */
+input[type=checkbox] ~ span {
+    display:none; 
+}
+
+/* This styles the footnote text which appears 
+when the label is clicked  */
+input[type=checkbox]:checked ~ span {
+    display:block; 
+    /*font-size: 85%;
+    font-family: Monospace;*/
+	background-color: #EFEFEF;
+    color: mix(#000, $text-color, 30%);
+    cursor:default;
+    text-align: left;
+}
+
+/* This permanently hides the checkbox  */
+input[type=checkbox]{
+    display:none;  
+}
+
+/* This styles the footnote label to appear 
+like a hyperlink  */
+input[type=checkbox] ~ label {
+    display:inline;
+    cursor:pointer;
+    color:$link-color;
+    text-decoration:underline;
+}
+
+/* This styles the footnote label when the mouse 
+hovers over it */
+input[type=checkbox] ~ label:hover {
+    text-decoration:underline;
+    cursor:pointer;
+    color:red;
+}
+
+/* This styles the footnote label after it is clicked */
+input[type=checkbox]:checked ~ label {
+    color:red;
+    text-decoration:none;
+}
+
+
+
+/* OTHER */
+
+#mobile_svg_chart {
+    display: none;
+}
+
+@media screen and (max-width: 768px) {
+    /* Hide large image */
+    #large_svg_chart {
+        display: none;
+    }
+
+    /* Display the small image */
+    #mobile_svg_chart {
+        display: block;
+    }
+    .extra_research_detail {
+        display: none;
+    }
+    .content{
+        font-size:13px;
+    }
+    .genai-block{
+        font-size:13px;
+    }
+}
+span {
+    font-size:14px;
+}
+
+

@@ -1,0 +1,146 @@
+---
+title: 'R1 SoSe 24: Bl. 8, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Wahrscheinlichkeiten in weiteren, speziellen Situationen
+
+Verwendete Software: `r R.version.string`
+
+### a) Münzwurf
+
+Modellierung: $X_i$ sei der Indikator für "Kopf" beim $i$-ten Münzwurf,
+d. h. $X_i = 1$, falls "Kopf" bei ihm kommt, $X_i = 0$ sonst. Dann sind
+(gemäß Annahmen) $X_1, \ldots, X_{20}$ unabhängig und identisch
+$\text{Bernoulli}(2/3)$-verteilt, sodass für die Anzahl der Kopf-Würfe
+$S := X_1 + \ldots + X_{20}$ gilt: $S$ ist $\text{Binomial}(20, 2/3)$-verteilt.
+
+Gesucht ist also $P(S = 10)$.  
+Lösung:
+```{r a}
+dbinom(x = 10, size = 20, prob = 2/3)
+```
+
+
+### b) Sicherungen
+
+Modellierung: Der Indikator $X_i$ zeige durch $X_i = 1$ den Defekt von Sicherung
+$i = 1, \ldots, 4\ (= k)$ an, wobei **ohne Zurücklegen** aus der Grundgesamt von
+$N = 250$ Sicherungen mit $N * p = 250 * 0.06 = 15\ (= m)$ defekten und
+entsprechend $N - N * p = 235 \ (= n)$ intakten gezogen wird. Dann ist die
+Anzahl $S := X_1 + \ldots + X_k$ der gezogenen defekten Sicherungen
+hypergeometrisch verteilt zu den Parametern $m, n$ und $k$.
+
+Gesucht sind also $P(S = i)$ für $i = 0, 1, 2, 3, 4$.  
+Lösung:
+```{r b}
+dhyper(x = 0:4, m = 15, n = 235, k = 4)
+```
+
+Beachte zum Vergleich die Ergebnisse bei 4-fachem Ziehen **mit Zurücklegen**
+aus einer Grundgesamtheit mit 6 % defekten Sicherungen:
+```{r b-2}
+dbinom(x = 0:4, size = 4, prob = 0.06)
+```
+
+
+### c) Roulette
+
+Modellierung: $X_i$ zeige die Farbe "rot" im $i$-ten Roulette-Spiel an,
+d. h. $X_i = 1$, falls "rot" in ihm kommt, $X_i = 0$ sonst, wobei $i = 1,
+2, \ldots$ (unbegrenzt). Dabei werden $X_1, X_2, \ldots$ unabhängig und
+identisch $\text{Bernoulli}(p)$-verteilt angenommen mit $p = 18/37$. Es
+sei $S$ die Anzahl der Spiele *vor* dem erstmaligen Auftreten von "rot"
+(also die Anzahl der Spiele, in denen "nicht rot" kommt, bevor erstmals
+"rot" auftritt). Dann ist $S$ geometrisch verteilt zum Parameter $p$ mit
+
+$P(S = k) = P(X_1 = 0, \ldots, X_k = 0, X_{k+1} = 1)
+= P(X_1 = 0) * \cdots * P(X_k = 0) * P(X_{k+1} = 1)$
+
+$= (1-p)^k * p$. (Glgtl. auch minimal anders definiert.)
+
+Gesucht ist hier
+
+$P(\text{'Frühestens nach 5 Spielen "rot"'})
+= P(\text{'Frühestens im 6. Spiel zum 1. Mal "rot"'})$
+
+$= P(\text{'Im 6. oder im 7. oder im 8. oder } \ldots \text{ Spiel zum 1. Mal "rot"'})$
+
+$= P(S \ge 5) = P(S > 4) = 1 - P(S \le 4)$.
+
+Lösung:
+```{r c}
+1 - pgeom(q = 4, prob = 18/37)
+```
+
+Oder:
+```{r c-2}
+ pgeom(q = 4, prob = 18/37, lower.tail = FALSE)
+```
+
+
+### d) Notaufnahme
+
+Modellierung: $X_i$ sei der Indikator für Person $i$ in einer sehr bis
+unendlich großen Population zwischen 18 und 19 Uhr in die Notaufnahme
+als Patient zu kommen, d. h. $X_i = 1$, falls Person $i$ kommt, $X_i = 0$
+sonst, wobei die Wahrscheinlichkeit des genannten Ereignisses für jede
+einzelne Person sehr klein ist. Daher kommt für die Anzahl $X$ an Personen,
+die als Patient *unabhängig voneinander* in die Notaufnahme kommen, die
+Poisson-Verteilung in Betracht.
+
+Hier speziell (gemäß Aufgabe) $X \sim \text{Poisson}(6.9)$, da der
+Erwartungswert für $X$ zu $\lambda = 6.9$ ermittelt wurde.
+
+Gesucht ist also $P(X > 9) = 1 - P(X \le 9)$.  
+Lösung:
+```{r d}
+1 - ppois(q = 9, lambda = 6.9)
+```
+
+Oder:
+```{r d-2}
+ppois(q = 9, lambda = 6.9, lower.tail = FALSE)
+```
+
+
+### e) Diagnoseverfahren
+
+Modellierung: $X_i$ sei der Indikator für die Unverträglichkeitsreaktion
+bei Patient $i$, d. h. $X_i = 1$, falls die U.-reaktion bei ihm auftritt
+und $X_i = 0$ sonst. Dann sind (gemäß Annahmen) $X_1, \ldots, X_{25}
+\text{ u. i. v. } \sim \text{Bernoulli}(0.1)$, sodass für die Anzahl der
+U.-reaktionen $S := X_1 + \cdots + X_{25}$ gilt: $S \sim \text{Bin}(25, 0.1)$.
+
+Da "mindestens so gut" hier dasselbe bedeutet wie "höchstens eine
+U.-reaktion", ist $P(S \le 1)$ gesucht.  
+Lösung:
+```{r e}
+pbinom(q = 1, size = 25, prob = 0.1)
+```
+
+Erscheint es plausibel, dass das neue Verfahren besser ist als das etablierte?
+Fazit?
+
+
+### f) Lebensdauern
+
+Modellierung: $X, Y, Z$ seien die Lebensdauern, für die $X, Y, Z
+\text{ u. i. v. } \sim \text{Exp}(1/2)$ angenommen wird. Gesucht ist 
+
+$P(\max(X, Y, Z) < 1)
+= P(X < 1, Y < 1, Z < 1)$ 
+
+$= P(X < 1) * P(Y < 1) * P(Z < 1)$  (aufgrund der Unabhängigkeitsannahme)
+
+$= P(X < 1)^3$   (da X, Y, Z identisch verteilt)
+
+$= P(X <= 1)^3$  (da X stetig verteilt).
+
+Lösung:
+```{r f}
+pexp(q = 1, rate = 1/2)^3
+```
