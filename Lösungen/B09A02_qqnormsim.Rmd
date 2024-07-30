@@ -1,0 +1,66 @@
+---
+title: 'R1 SoSe 24: Bl. 9, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Die Hilfsfunktion `qqnorm.sim`
+
+Verwendete Software: `r R.version.string`
+
+### Definition der Funktion
+
+```{r Fktdef-qqnormsim}
+qqnorm.sim <- function(x) {
+ oldp <- par(mfrow = c(3, 4))   # oldp speichert die aktuellen Einstel-
+      # lungen des Grafiklayouts (bevor der (3x4)-Mehrfachplotrahmen
+      # aktiviert wird), um sie nachher wiederherzustellen.
+ 
+ qqnorm(x, main = "Originaldaten",   # Normal-QQ-Plot der zu beur-
+        datax = TRUE, col = "red")   # teilenden Daten (in rot) mit
+ qqline(x, datax = TRUE)             # Refenzlinie.
+ 
+ n <- length(x)   # Stichprobenumfang der zu beurteilenden Daten.
+ replicate(11, {  # 11-fache Wiederholung der Befehle in {....}.
+         xx <- rnorm(n)  # Erzeugung normalverteilter Daten.
+         qqnorm(xx, main = "Simulationsdaten", datax = TRUE)
+         qqline(xx, datax = TRUE)
+         } )
+ 
+ invisible(par(oldp))   # Restauration des vorherigen Grafiklayouts.
+}
+```
+Bemerkung: Der Aufruf `par(oldp)` im letzten Befehl des Funktionsrumpfs
+dient der Wiederherstellung des Grafiklayouts, das zum Zeitpunkt des
+Aufrufs von `qqnorm.sim` eingestellt war und in `oldp` zwischengespeichert
+wurde. Das "Einpacken" in `invisible` sorgt dafür, dass ein potenzieller
+Rückgabewert (von `par(oldp)`) an die Aufrufstelle von `qqnorm.sim`
+_unsichtbar_ zurückgegeben wird.
+
+
+### Anwendungsbeispiel
+
+Als Daten mögen die Mietdaten aus Aufgabe 3 von Blatt 6 dienen.
+
+Datenimport und Kontrolle der Rohdaten:
+```{r Import}
+(Mieten <- scan(file = "MietenFrankfurt"))
+```
+
+Normal-QQ-Plot der zu beurteilenden Schmelztemperaturen (in rot) sowie zum
+Vergleich die Normal-QQ-Plots der 11 simulierten, tatsächlich normalverteilten
+Stichproben gleichen Umfangs:
+```{r NormalQQPlots, fig.align='center', fig.asp=0.9, out.width='100%'}
+qqnorm.sim(Mieten)
+```
+
+
+**Frage:** Ergeben sich Zweifel an der Normalverteilungsannahme für diese
+Mietdaten?
+   
+
+**"Stilfrage":** Lässt sich das Layout verbessern, z. B. evtl. "ausdünnen",
+indem Redundanzen in der Beschriftung und unnötiger "white space" entfernt
+werden? Probieren Sie es, z. B. mit Hilfe von `par` usw.!

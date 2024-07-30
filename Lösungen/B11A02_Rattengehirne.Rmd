@@ -1,0 +1,89 @@
+---
+title: 'R1 SoSe 24: Bl. 11, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Einstichprobentest --- para- oder nichtparametrisch?
+
+Verwendete Software: `r R.version.string`
+
+### Import & Kontrolle der Daten
+
+Die beobachteten Differenzen in der Zunahme der Gewichte der Rattengehirne:
+```{r Import}
+(Differenz <- scan("Rattengehirne", skip = 1))
+```
+
+### Vorbereitungen der EDA
+
+Wollen i. F. `eda` und `qqnorm.sim` nutzen. Dazu kopiert man sich entweder
+den R-Code der Funktionsdefinitionen hierher oder lädt ihn in die laufende
+R-Session mit Hilfe von `source` aus einer separaten R-Datei, in die er
+vorher "ausgelagert" wurde (hier namens "B11_Hilfsfunktionen.R"). Letzteres
+ist oft zu bevorzugen, da es den hiesigen Code "schlanker" und modularer macht:
+```{r Funktionenimport}
+source("B11_Hilfsfunktionen.R", encoding = "UTF-8")
+```
+
+Hinweis: `encoding = "UTF-8"` ist nötig, da RStudio für die mit ihm generierten
+Dateien das Encoding UTF-8 verwendet, die R-Session unter Windows aber i. d. R.
+mit dem Encoding Windows-1252 (= cp-1252) läuft, was zur falschen Darstellung
+der deutschen Umlaute führt.
+
+*Bemerkung:* Die beiden Hilfsfunktionen wurden gegenüber ihren Versionen
+im Vorlesungsskript geringfügig modifiziert. Details finden sich in den
+Kommentaren in Ihrer Quell-Datei.
+
+
+### EDA
+
+```{r EDA1, fig.align='center', fig.asp=1}
+eda(Differenz)
+```
+```{r EDA2, fig.align='center', fig.asp=0.8}
+qqnorm.sim(Differenz)
+```
+```{r EDA3, fig.align='center', fig.asp=1, out.width='40%', results='hide'}
+car:::qqPlot(Differenz, id = FALSE)
+```
+
+**Fazit?** Zweifel an der Normalverteilungsannahme oder an der Unabhängigkeit
+der Daten?
+
+Nein.
+
+
+### Inferenz 
+
+Aufgrund obiger EDA wird ein (parametrischer) $t$-Test für $H_0: \mu_D \le 0$ gg.
+$H_1: \mu_D > 0$ durchgeführt, wobei $\mu_D$ der Erwartungswert (d. h.
+Populationsmittelwert) der Differenzen in der Zunahme der Gewichte der
+Rattengehirne sei:
+```{r Inferenz1}
+t.test(Differenz, alternative = "greater")
+```
+
+
+**Ergänzung:** Lediglich der Vollständigkeit halber führen wir hier auch Wilcoxons
+(nichtparametrischen) Vorzeichen-Rangsummentest für $H_0: \theta_D \le 0$ gg.
+$H_1: \theta_D > 0$ durch, wobei $\theta_D$ der Shift (hier der Populationsmedian)
+der Verteilung der Differenzen in der Zunahme der Gewichte der Rattengehirne "weg
+von der 0 (Null)" sei:
+```{r Inferenz2}
+wilcox.test(Differenz, alternative = "greater")
+```
+
+**Problem:** $p$-Wert aufgrund von Bindungen (wo?) in den Daten nicht exakt.
+
+**Frage:** Wie zuverlässig ist der $p$-Wert und damit das Testergebnis?
+Zur Beurteilung der Robustheit der Ergebnisses: Aufbrechen der Bindungen mit
+Hilfe von `jitter`.
+
+**Technische Frage:** Warum ist das Testergebnis für unterschiedlich ge-jitter-te
+Versionen dieser Daten stets dasselbe?
+
+**Inhaltliche Frage:** Wie interpretiert bzw. "kommuniziert" man überhaupt das
+erzielte Testergebnis $\theta_D > 0$ (anschaulich)?

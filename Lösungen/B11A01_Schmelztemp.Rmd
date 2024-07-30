@@ -1,0 +1,311 @@
+---
+title: 'R1 SoSe 24: Bl. 11, A. 1'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+# Ein-Stichproben-t- bzw. Gaußtests
+
+Verwendete Software: `r R.version.string`
+
+### Import & Kontrolle der Schmelztemperaturen der Reagenzgläser
+ 
+```{r Import}
+(Schmelztemperaturen <- scan("Schmelztemperaturen", skip = 2, sep = ","))
+```
+
+### Hilfsfunktionen für die EDA
+
+Wollen i. F. `eda` und `qqnorm.sim` nutzen. Dazu kopiert man sich entweder
+den R-Code der Funktionsdefinitionen hierher oder lädt ihn in die laufende
+R-Session mit Hilfe von `source` aus einer separaten R-Datei, in die er
+vorher "ausgelagert" wurde (hier namens "B11_Hilfsfunktionen.R"). Letzteres
+ist oft zu bevorzugen, da es den hiesigen Code "schlanker" und modularer macht:
+```{r Funktionenimport}
+source("B11_Hilfsfunktionen.R", encoding = "UTF-8")
+```
+
+Hinweis: `encoding = "UTF-8"` ist nötig, da RStudio für die mit ihm generierten
+Dateien das Encoding UTF-8 verwendet, die R-Session unter Windows aber i. d. R.
+mit dem Encoding Windows-1252 (= cp-1252) läuft, was zur falschen Darstellung
+der deutschen Umlaute führt.
+
+*Bemerkung:* Die beiden Hilfsfunktionen wurden gegenüber ihren Versionen
+im Vorlesungsskript geringfügig modifiziert. Details finden sich in den
+Kommentaren in Ihrer Quelldatei.
+
+
+## Die EDA:
+```{r EDA, fig.align='center', fig.asp=0.9}
+eda(Schmelztemperaturen)
+qqnorm.sim(Schmelztemperaturen)
+```
+
+**Fazit?** Ergeben sich Zweifel an der Normalverteilungsannahme
+oder der Unabhängigkeit der Daten?
+
+Alternative zur Beurteilung der Normalverteilungsannahme (mittels
+Konfidenzgrenzen anstelle simulierter Normal-QQ-Plots):
+```{r EDA2, fig.align='center', fig.asp=0.9, out.width='50%'}
+library(car)
+qqPlot(Schmelztemperaturen, id = FALSE)
+detach(package:car)
+```
+
+Fazit hier?
+
+#### R-technischer Hinweis
+
+Zugriff auf Objekte in installierten, aber aktuell nicht `attach`-ten
+Paketen geht auch "direkt" mit Hilfe des `::`- oder des `:::`-Operators:
+```{r EDA2-Hinweis, fig.align='center', out.width='40%'}
+search()  # Kontrolle: Ist car (noch) "attached"?
+car::qqPlot(Schmelztemperaturen, id = FALSE)
+```
+
+
+## Die inferenzstatistische Analyse
+
+#### a) $H_0: \mu = 745$ gg. $H_1: \mu \neq 745$ mit $\sigma^2$ unbekannt
+```{r Inferenz-a}
+t.test(Schmelztemperaturen, mu = 745)
+```
+
+#### $b_1$) $H_0: \mu \ge 745$ gg. $H_1: \mu < 745$ mit $\sigma^2$ unbekannt
+```{r Inferenz-b1}
+t.test(Schmelztemperaturen, mu = 745, alternative = "less")
+```
+
+#### $b_2$) $H_0: \mu \le 745$ gg. $H_1: \mu > 745$ mit $\sigma^2$ unbekannt
+```{r Inferenz-b2}
+t.test(Schmelztemperaturen, mu = 745, alternative = "greater")
+```
+
+#### c) $H_0: \mu = 745$ gg. $H_1: \mu \neq 745$ mit $\sigma^2$ **bekannt**
+
+Der Gaußtest ist in Rs base distribution nicht implementiert!
+Wir führen ihn "von Hand" durch:
+
+Berechnung der Teststatistik (siehe § 8.1.3 im Skript) und Festlegen des
+Signifikanzniveaus:
+```{r Inferenz-c-1}
+n <- length(Schmelztemperaturen)
+teststat <- sqrt(n) * (mean(Schmelztemperaturen) - 745) / sqrt(4979.47)
+
+alpha <- 0.05
+```
+
+##### i) Testentscheidung mittels kritischem Wert:
+```{r Inferenz-c-2}
+(krit.Wert <- qnorm(1 - alpha/2))   # s. Skript-§ 8.1.3
+abs(teststat) >= krit.Wert
+```
+
+##### ii) Testentscheidung mittels p-Wert:
+```{r Inferenz-c-3}
+(pWert <- 2 * (1 - pnorm(abs(teststat)))) # s. Skript-§ 8.1.4
+pWert <= alpha
+```
+
+#### d) $H_0: \mu \ge 745$ gg. $H_1: \mu < 745$ mit $\sigma^2$ **bekannt**
+
+Siehe Bemerkung bei c) und beachte, dass die Berechnung der Teststatistik dort
+schon erfolgte.
+
+##### i) Testentscheidung mittels kritischem Wert:
+```{r Inferenz-d-1}
+(krit.Wert <- qnorm(alpha))   # = -qnorm(1 - alpha)
+teststat <= krit.Wert
+```
+
+##### ii) Testentscheidung mittels p-Wert:
+```{r Inferenz-d-2}
+(pWert <- pnorm(teststat))
+pWert <= alpha
+```
+
+
+### Ergänzung: Eine Funktion für Gaußtests
+
+Hier folgt eine eigene Implementation des Gaußtests (sowohl für den Ein-
+als auch für den Zweistichprobenfall) als Funktion. Sie ist eine geeignete
+Anpassung einer stark "abgespeckten" Version der R-Funktion `t.test`, deren
+R-Code man im Original durch die Eingabe von `stats:::t.test.default` am
+R-Prompt erhält.
+
+```{r Fktdef-gausstest}
+gauss.test <- function(x, sigmax, y = NULL, sigmay = NULL,
+                       alternative = c("two.sided", "less", "greater"),
+                       mu = 0, conf.level = 0.95) {
+
+ # Ein- oder Zweistichproben-Gaußtest für normalverteilte
+ # Stichproben mit bekannter(!) Populationsstandardabweichung.
+
+ # Notwendige Funktionsargumente:
+ # x            Datenvektor der Stichprobe (SP).
+ # sigmax       Wert der Standardabweichung der Population,
+ #              aus der die x-SP gezogen wurde.
+
+ # Optionale Funktionsargumente:
+ # y            Datenvektor der zweiten SP;
+ #              Voreinstellung: NULL.
+ # sigmay       Wert der Standardabweichung der Population,
+ #              aus der die y-SP gezogen wurde;
+ #              Voreinstellung: NULL.
+ # alternative  Typ der Alternative: "two.sided", "greater"
+ #              oder "less"; Voreinstellung: "two.sided".
+ # mu           Hypothetisierter Erwartungswert im Ein-SPn-Test
+ #              bzw. hypothetisierte Erwartungswertedifferenz
+ #              im Zwei-SPn-Test; Voreinstellung: 0.
+ # conf.level   Niveau des Konfidenzintervalls für den in der
+ #              Hypothese betrachteten Parameter;
+ #              Voreinstellung: 95 %.
+
+ # Rückgabe der Funktion: Eine Liste mit einigen (Zwischen-)
+ # Ergebnissen des Tests, mit den folgenden Komponenten:
+ #
+ # statistic    Wert der verwendeten Teststatistik.
+ # estimate     Schätzwert des Parameters, auf den sich die
+ #              Hypothese bezieht.
+ # null.value   Hypothetisierter Parameterwert.
+ # alternative  Art der Alternativ-Hypothese (zweiseitig, ein-
+ #              seitig kleiner oder einseitig groesser).
+ # method       Verwendete Test-Methode (Ein- oder Zwei-SPn-
+ #              Gaußtest).
+ # p.value      p-Wert des Tests.
+ # conf.int     Konfidenzintervall des Parameters, auf den sich
+ #              die Hypothese bezieht.
+ # conf.level   Niveau des Konfidenzintervalls.
+ # data.name    Name/n des/der übergebenen Datenvektors/en.
+ #*************************************************************
+
+ alternative <- match.arg(alternative)   # Kontrolle und evtl.
+               # Vervollständigung der Eingabe für alternative.
+
+ nx <- length(x);   mx <- mean(x)    # Hilfsgrößen auf Vorrat.
+
+ if(is.null(y)) {     ### Einstichproben-Gaußtest ###
+   stderr <- sigmax / sqrt(nx)   # Berechnen von Hilfsgrößen
+   tstat <- (mx - mu) / stderr   # und Teststatistik.
+
+   estimate <- c("mean of x" = mx)     # Sammeln und Vorbe-
+   method <- "One Sample Gauss-test"   # reiten von Ausgabe-
+   dname <- deparse(substitute(x))     # Informationen.
+
+  } else {              ### Zweistichproben-Gaußtest ###
+   if(is.null(sigmay)) stop("sigmay is missing!")
+
+   ny <- length(y);    my <- mean(y)           # Berechnen von
+   stderr <- sqrt(sigmax^2/nx + sigmay^2/ny)   # Hilfsgrößen
+   tstat <- (mx - my - mu) / stderr            # und Teststa-
+                                               # tistik.
+
+   estimate <- c("mean of x" = mx,          # Sammeln und 
+                 "mean of y" = my)          # Vorbereiten
+   method <- "Two Sample Gauss-test"        # von Ausgabe-
+   dname <- paste(deparse(substitute(x)),   # Informationen.
+                  "and", deparse(substitute(y)))
+   }
+
+ if(alternative == "less") {   ### Einseitige "untere" ###
+                               ### Alternative         ###
+   pval <- pnorm(tstat)   # Berechnen des p-Werts.
+   cint <- c(-Inf,                       # Vorbereitung des
+             tstat + qnorm(conf.level))  # Konf.-intervalls.
+
+  } else
+   if(alternative == "greater") {   ### Einseitige "obere" ###
+                                    ### Alternative        ###
+     pval <- pnorm(tstat, lower = FALSE)    # p-Wert.
+     cint <- c(tstat - qnorm(conf.level),   # Konf.-intervall-
+               Inf)                         # vorbereitung.
+
+    } else {                    ### Zweiseitige Alternative ###
+     pval <- 2 * pnorm(-abs(tstat))   # p-Wert.
+     alpha <- 1 - conf.level          # Konfidenz-
+     cint <- qnorm(1 - alpha/2)       # intervall-
+     cint <- tstat + c(-cint, cint)   # vorbereitung.
+    }
+
+  cint <- mu + cint * stderr   # Eigentliches Konf.-intervall
+  attr(cint, "conf.level") <- conf.level   # mit Niveau-Info.
+
+  names(tstat) <- "z"                       # Weitere
+  names(mu) <- if(is.null(y)) "mean" else   # Ausgabe-
+                 "difference in means"      # Infos.
+
+  rval <- list(statistic = tstat, p.value = pval,    # Sammeln
+               conf.int = cint, estimate = estimate, # aller
+               null.value = mu,                      # Ergeb-
+               alternative = alternative,            # nisse.
+               method = method, data.name = dname)
+  class(rval) <- "htest"   # Klasseneigenschaft "htest" sorgt
+                           # für die automatische, "übliche"
+                           # Formatierung der Ergebnisausgabe.
+  return(rval)
+  }
+```
+
+
+#### Anwendungsbeispiele
+
+1. Einseitiger Einstichproben-Gaußtest für simulierte Daten mit $\mu = 0$ (in `xx`),
+sodass die getestete Nullhypothese $\mu \ge 3$ nicht zutrifft, sondern die Alternative
+$\mu < 3$:
+
+```{r Anwendungsbsp1}
+set.seed(111)
+xx <- rnorm(20)
+gauss.test(xx, sigmax = 1, mu = 3, alternative = "less")
+```
+
+2. Zweiseitiger Zweistichproben-Gaußtest für simulierte Daten mit $\mu_1 = 0$
+und $\mu_2 = 4$ (in `xx` bzw. `yy`), sodass die getestete Nullhypothese
+$\mu_1 - \mu_2 = -5$ nicht zutrifft, sondern die zweiseitige Alternative
+$\mu_1 - \mu_2 \neq -5$:
+
+```{r Anwendungsbsp2}
+yy <- rnorm(35, mean = 4)
+gauss.test(x = xx, sigmax = 1, y = yy, sigmay = 1, mu = -5)
+```
+
+3. Einseitiger Zweistichproben-Gaußtest die Daten von oben (in `xx` und `yy`),
+sodass die hier getestete Nullhypothese $\mu_1 - \mu_2 \le -10$ auch nicht
+zutrifft, sondern die einseitige Alternative $\mu_1 - \mu_2 > -10$:
+
+```{r Anwendungsbsp3}
+gauss.test(x = xx, sigmax = 1, y = yy, sigmay = 1, mu = -10, alternative = "g")
+```
+
+4. Anwendung auf die Aufgabe c): (Erläuterungen siehe oben.)
+```{r Anwendungsbsp4}
+gauss.test(x = Schmelztemperaturen, sigmax = sqrt(4979.47), mu = 745)
+```
+
+5. Anwendung auf die Aufgabe d): (Erläuterungen siehe oben.)
+```{r Anwendungsbsp5}
+gauss.test(x = Schmelztemperaturen, sigmax = sqrt(4979.47), mu = 745,
+           alternative = "less")
+```
+
+
+### R-technische Ergänzung: Tipp für's Aufräumen
+
+Falls mehrere Objekte aus dem aktuellen workspace zu löschen sind,
+wie z. B. durch den folgenden Befehl
+```{r Aufräumen, eval=FALSE}
+rm(Schmelztemperaturen, alpha, gauss.test, krit.Wert, n, pWert, teststat, xx, yy)
+```
+ist es ab einer gewissen Objekteanzahl weniger tippaufwändig, es wie folgt zu
+machen: Die Namen der *nicht* zu löschenden Objekte zusammenstellen, mit `match`
+ihre Positionsnummern im workspace suchen lassen, die _anderen_ Elemente aus der
+Rückgabe von `ls` auswählen und an `rm` "füttern":
+```{r RtechnHinweis, eval=FALSE}
+behalten <- c("eda", "qqnorm.sim")
+rm(list = ls()[-match(behalten, ls())])
+```
+
+Hinweis: `eda`und `qqnorm.sim` werden in weiteren Aufgaben benötigt und sollten
+daher nicht gelöscht werden.

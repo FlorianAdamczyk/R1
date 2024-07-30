@@ -1,0 +1,151 @@
+---
+title: 'R1 SoSe 24: Bl. 10, A. 2'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+# Simulationen für Normalverteilungen
+
+Verwendete Software: `r R.version.string`
+
+### Die Simulationsparameter
+
+Wahl des Stichprobenumfangs als `SP.Umfang` und der Konstellationen für die
+Normalverteilungsparameter durch zweielementige Vektoren mit benannten
+Elementen in den benannten Komponenten der Liste `Parameter`:
+```{r Simulationsparameter}
+SP.Umfang <- 100
+Parameter <- list(P1 = c(mu =  0, sigma = 1),
+                  P2 = c(mu =  0, sigma = 2),
+                  P3 = c(mu =  2, sigma = 0.5),
+                  P4 = c(mu = -1, sigma = 3))
+```
+
+### Festlegung des Startwertes des (Pseudo-)RNG
+
+Gewährleistet die Reproduzierbarkeit der Simulation. (Startwert = "seed",
+RNG = "random numbers generator" = Zufallszahlengenerator)
+
+```{r RNGseed}
+set.seed(725)
+```
+
+Dabei ist 725 willkürlich gewählt.
+
+### Erzeugen der Zufallsstichproben
+
+Sukzessive für jede Komponente der Liste Parameter (dem ersten Argument von
+`lapply`) wird die "inline-definierte", anonyme Funktion `lapply`s zweites
+Argument) wiederholt aufgerufen. Diese erwartet zwei Argumente: `x` und `n`.
+
+An ihr erstes Argument `x` wird dabei jedes Mal eine andere Komponente der Liste
+`Parameter` übergeben und an ihr zweites (`n`) jedes Mal derselbe Wert `SP.Umfang`
+(bewirkt durch das dritte Argument von `lapply`). Im Rumpf der inline-definierten
+Funktion wird durch `rnorm` ein Vektor von n normalverteilten Zufallszahlen (mit
+Erwartungswert aus `x["mu"]` und Standardabweichung aus `x["sigma"]`) generiert
+und als Resultat zurückgegeben und zwar an `lapply`, die diese Resultatevektoren
+"sammelt" und zusammengefasst in einer Liste als Gesamtergebnis zurückliefert):
+```{r Zufallsstichproben}
+Stichproben <- lapply(Parameter,
+                      function(x, n) {
+                        rnorm(n, mean = x["mu"], sd = x["sigma"])
+                        },
+                      n = SP.Umfang)
+```
+
+
+In Stichproben steht nun eine Liste mit derselben
+Länge und denselben Komponentennamen wie Parameter.
+
+
+### Erzeugen der Grafiken
+
+#### Die Histogramme
+
+Automatisches Öffnen eines Grafikfensters durch `par(....)` und Formatieren als
+(2 x 2)- Mehrfachplotrahmen. Dann  temporäres "Einhängen" der Liste `Stichproben`
+in den R-Suchpfad mit `with`, damit auf ihre Komponenten direkt durch deren Namen
+zugegriffen werden kann. Sodann Erstellen von vier Histogrammen durch `hist`:
+Für jede der Stichproben-Komponenten `P1`, `P2`, `P3` und `P4` eines:
+```{r Histogramme, fig.show='hold'}
+par(mfrow = c(2, 2))
+
+attach(Stichproben)
+ hist(P1, freq = FALSE)
+ hist(P2, freq = FALSE)
+ hist(P3, freq = FALSE)
+ hist(P4, freq = FALSE)
+detach(Stichproben)
+```
+
+**Beachte:** Nur wegen `freq = FALSE` werden *flächennormierte* Histogramme
+gezeichnet.
+
+
+##### Variante
+
+mit gleichen Achsenausschnitten zur besseren optischen Vergleichbarkeit der
+Histogramme, wobei der Ausschnitt der x-Achse automatisch und derjenige
+der y-Achse "von Hand" bestimmt bzw. festgelegt wird:
+```{r Histogramme-Variante}
+xrange <- range(Stichproben)  # range funktioniert offenbar über
+                              # Listenkomponenten hinweg!
+yrange <- c(0, 0.8)
+
+par(mfrow = c(2, 2))
+with(Stichproben, {
+ hist(P1, freq = FALSE, xlim = xrange, ylim = yrange)
+ hist(P2, freq = FALSE, xlim = xrange, ylim = yrange)
+ hist(P3, freq = FALSE, xlim = xrange, ylim = yrange)
+ hist(P4, freq = FALSE, xlim = xrange, ylim = yrange)
+ })
+```
+
+Frage: Wie ginge es mit `lapply` o. Ä. (also ohne `with`)?
+Ausprobieren!
+
+
+
+#### Die Boxplots 
+
+In einem *weiteren* Grafikfenster wird für jede der Stichproben-Komponenten
+ein Boxplot angefertigt, wobei diese Boxplots in *einem* Koordinatensystem
+nebeneinander geplottet werden, um besser verglichen werden zu können:
+```{r Boxplots}
+# X11()   # Würde für weiteres Grafikfenster benötigt.
+boxplot(Stichproben)
+```
+
+##### Variante
+
+mit einigermaßen informativer Überschrift und deren vollautomatisch stets
+richtiger Platzierung mit Hilfe der Funktion `axis`:
+```{r Boxplots-Variante}
+Uebertxt <- paste0("(", sapply(Parameter, paste, collapse = ", "),
+                   ")")   # Wie oben in Variante 1.
+boxplot(Stichproben,
+        main = "Erwartungswerte und Standardabweichungen:")
+axis(side = 3, at = 1:4, labels = Uebertxt,
+     line = -0.7, tick = FALSE, font = 2)
+```
+
+
+#### Die Normal-QQ-Plots
+
+in einem (3 x 2)-Mehrfachplotrahmen (wahlweise ebenfalls in einem weiteren
+Grafikfenster):
+```{r NormalQQPlots}
+# X11()   # Würde für weiteres Grafikfenster benötigt.
+par(mfrow = c(2, 2))
+   
+with(Stichproben, {
+ qqnorm(P1, main = "P1");  qqline(P1)
+ qqnorm(P2, main = "P2");  qqline(P2)
+ qqnorm(P3, main = "P3");  qqline(P3)
+ qqnorm(P4, main = "P4");  qqline(P4)
+ })
+```

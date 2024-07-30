@@ -1,0 +1,92 @@
+---
+title: 'R1 SoSe 24: Bl. 9, A. 3'
+author: "GE"
+date: "`r format(Sys.time(), '%d. %B %Y')`"
+output:
+  html_document: default
+---
+
+## Matrix-Plots für `EuStockMarkets`
+
+Verwendete Software: `r R.version.string`
+
+#### Struktur- und Inhaltskontrolle
+
+```{r struktur-und-inhalt}
+str(EuStockMarkets)
+summary(EuStockMarkets)
+head(EuStockMarkets)
+```
+
+
+### 1. Versuch
+
+Die Verläufe der vier Indices werden (am Bildschirm) "ohne alles" gezeichnet:
+
+```{r versuch1}
+matplot(EuStockMarkets)
+```
+
+**Fazit:** Wenig ansprechend.
+
+
+### 2. Versuch:
+
+Polygonzüge statt Symbol-Ketten, Achsen-Labels, Gitterlinien (zu den
+voreingestellten Tickmarks):
+```{r versuch2}
+matplot(EuStockMarkets, type = "l", lty = "solid",
+        xlab = "Börsenhandelstage 1991 - 1998",
+        ylab = "Schlusskurs")
+grid()
+
+```
+
+
+### 3. Versuch:
+
+Ausgabe in PDF-Datei (im DIN-A4-Querformat, maximale Formatausnutzung), dickere
+Polygonzüge, mehr Tickmarks und damit Gitterlinien, Überschrift, Gitterlinien
+dicker und gestrichelt, Legende (mit undurchsichtig weißem Hintergrund; nötig
+für PDF):
+
+```{r versuch3-pdf, results='hide'}
+pdf("EuStockmarkets_V3.pdf", paper = "a4r",
+    width = 0, height = 0)
+ matplot(EuStockMarkets, type = "l", lty  = "solid",
+         lwd = 2, lab = c(10, 10, 0),
+         ylab = "Schlusskurs",
+         xlab = "Börsenhandelstage 1991 - 1998",
+         main = paste("Tägliche Schlusskurse vierer",
+                      "Europäischer Börsenindices,",
+                      "1991 – 1998"))
+ grid(lwd = 2, lty = "dashed")
+ legend("topleft", lty = "solid", lwd = 2, col = 1:4,
+        legend = c("DAX", "SMI", "CAC", "FTSE"),
+        bg = "white")
+dev.off()
+```
+
+
+### 4. Versuch:
+
+Wie eben, nur dass durch `matplot` erst ein *leeres* Koordinatensystem gezeichnet
+wird (`type = "n"`), dann die Gitterlinien und danach die Polygonzüge durch
+`matlines`. Vorteil: Gitterlinien liegen *hinter* den Polygonzügen:
+
+```{r versuch4-pdf, results='hide'}
+pdf("EuStockmarkets_V4.pdf", paper = "a4r",
+    width = 0, height = 0)
+ matplot(EuStockMarkets, type = "n", lab = c(10, 10, 0),
+         ylab = "Schlusskurs",
+         xlab = "Börsenhandelstage 1991 - 1998",
+         main = paste("Tägliche Schlusskurse vierer",
+                      "Europäischer Börsenindices,",
+                      "1991 – 1998"))
+ grid(lwd = 2, lty = "dashed")
+ matlines(EuStockMarkets, lty  = "solid", lwd = 2)
+ legend("topleft", lty = "solid", lwd = 2, col = 1:4,
+        legend = c("DAX", "SMI", "CAC", "FTSE"),
+        bg = "white")
+dev.off()
+```
