@@ -74,3 +74,4 @@ pdf("EuStockmarkets_V4.pdf", paper = "a4r",
         bg = "white")
 dev.off()
 
+

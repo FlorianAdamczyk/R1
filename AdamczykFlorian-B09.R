@@ -116,3 +116,4 @@ legend("bottomright", legend = c("shape=1, scale=1", "shape=2, scale=1", "shape=
 
 # PDF-Datei schließen
 dev.off()
+
