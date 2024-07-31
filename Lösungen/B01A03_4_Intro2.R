@@ -68,3 +68,4 @@ max(abs(tangenswerte[ungl] -
 # Radikales Aufräumen ----
 #*************************
 rm(list = ls())
+
