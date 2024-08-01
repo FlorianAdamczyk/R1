@@ -1,0 +1,105 @@
+---
+title: "Aufgabe 01"
+author: "Christoph Gastmann | Matrikel: 8112863"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+# laden der Pakete
+```{r}
+library(car)
+library(ggplot2)
+library(tidyverse)
+```
+
+a. Lesen Sie mit read.csv die Daten in R ein und kontrollieren Sie Struktur und Inhalt der
+eingelesenen Daten!
+
+```{r}
+werte <- read.csv("Buecherwerte.csv", header = TRUE, sep = ",")
+print(head(werte, 5))
+print(tail(werte, 5))
+
+ 
+sample_n(werte, 5)
+
+```
+Die Einträge der ersten 5 Zeilen, der letzten 5 und zufälliger 5 Zeilen, scheinen keine Probleme auf den ersten Blick zu ergeben. Die Zahlenwerte sind sinnvollerweise auch als `Integer` gespeichert.
+
+b. Rechnen Sie allein aus den Buchpreisen der Stichprobe die Wiederbeschaffungskosten f¨ur
+den Gesamtbestand hoch!
+
+```{r}
+kosten_Gesamtbestand_kumuliert <- cumsum(werte$Preis)
+kosten_Gesamtbestand <- tail(kosten_Gesamtbestand_kumuliert, 1) 
+```
+
+Der Gesamtbestand der Bücher beträgt `r kosten_Gesamtbestand`
+
+c. Bestimmen Sie nun den durchschnittlichen Wiederbeschaffungspreis pro Millimeter f¨ur die
+Stichprobe und rechnen Sie damit die Wiederbeschaffungskosten f¨ur den Gesamtbestand,
+dessen Gesamtdicke 25182 Millimeter betrug, hoch!
+
+```{r}
+durchschnitt_preis_pro_mm <- sum(werte$Preis) / sum(werte$Dicke)
+gesamtdicke_bestand <- 25182
+wiederbeschaffungskosten_gesamt <- durchschnitt_preis_pro_mm * gesamtdicke_bestand
+```
+
+d) Fertigen Sie ein Streudiagramm der Buchpreise gegen die Buchdicken an!
+```{r}
+Streudiagramm_Preise_Dicke  <-  ggplot(werte, aes(x = Dicke, y = Preis)) +
+  geom_point() +
+  labs(title = "Streudiagramm der Buchpreise gegen die Buchdicken",
+       x = "Dicke (mm)",
+       y = "Preis (€)")
+Streudiagramm_Preise_Dicke
+```
+## Andere Tansformationen:
+
+```{r}
+z_Dicke <- scale(werte$Dicke)
+z_Preis <- scale(werte$Preis)
+
+Streudiagramm_Preise_Dicke  <-  ggplot(werte, aes(x = z_Dicke, y = z_Preis)) +
+  geom_point() +
+  labs(title = "Streudiagramm der Buchpreise gegen die Buchdicken",
+       x = "Dicke (mm)",
+       y = "Preis (€)")
+Streudiagramm_Preise_Dicke
+```
+## Log-Transformation
+```{r}
+
+log_Dicke <- log(werte$Dicke)
+log_Preis <- log(werte$Preis)
+
+Streudiagramm_Preise_Dicke  <-  ggplot(werte, aes(x = log_Dicke, y = log_Preis)) +
+  geom_point() +
+  labs(title = "Streudiagramm der Buchpreise gegen die Buchdicken",
+       x = "Dicke (mm)",
+       y = "Preis (€)")
+Streudiagramm_Preise_Dicke
+```
+```
+
+e) Die Erhebung der Buchdicke war in der Hoffnung geschehen, die Sch¨atzung der Buchpreise
+mithilfe dieser ”Ersatzvariablen“ vereinfachen zu k¨onnen. In Anbetracht des eben
+erzeugten Streudiagrammes: Ließe sich aus der Dicke (in mm) eines Buches – wenigstens
+tendenziell – sein Wiederbeschaffungspreis sch¨atzen? Wenn ja, hielten Sie diesen
+Sch¨atzwert f¨ur zuverl¨assig, und wenn nein, warum nicht?
+
+Die frage ist, was "tendenziell" bedeutet. In der Psycholigie würde man da Cohen fragen. Ingesamt sieht man einen leichten positiven "Trend", daher die Dicke scheint die Preise vorherzusagen. Daher ohne weiter "tendenziell" zu difinieren, könnte man sagen ja. Aber wenn ich ein Unternehmer wäre und so meine Preise vorhersage, dann würde ich die Dicke nicht nehmen. Zur weitern untersuchung berechnet Korrelation. Die besagt was ähnliches. Auch andere Transformationen ändern nichts daran.
+
+
+
+```{r}
+korrelation <- cor(werte$Dicke, werte$Preis)
+print(korrelation)
+```
+
+Die Korrelation von Dicke und Preise beträgt `r korrelation`. Ist damit eher klein.
+
+
+

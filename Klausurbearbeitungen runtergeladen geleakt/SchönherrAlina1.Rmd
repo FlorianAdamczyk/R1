@@ -1,0 +1,59 @@
+---
+title: "SchönherrAlina1"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) Einlesen der Datei Bücherwerte: 
+```{r}
+Buecherwerte <- read.csv(file= "C:/Users/PCUser/Documents/DATA ANALYTICS/R1/Klausur/Daten/Prüfungsaufgaben_und_-daten/Buecherwerte.csv")#
+Buecherwerte
+# Ausgeben der ersten 5 und letzten 5 Zeilen des Datensatzes als Kontrolle der Datenstruktur 
+head(Buecherwerte,5)
+tail(Buecherwerte,5)
+str(Buecherwerte)
+summary(geburtsdaten)
+```
+Es handelt sich um eine CSV Datei, welche aus zwei Spalten und 100 Zeilen (= Zufallsstichprobe) besteht. In der Datei sind keine Tippfehler enthalten, sodass diese problemlos eingelesen werden konnte. Die Datei enthält die Daten von Büchern. In jeder Zeile befindet sich ein Buch. Die Preise (= Wiederbeschaffungspreis) und Dicke in mm der einzelnen Bücher können abgelesen werden. 
+
+b) Wiederbeschaffungskosten Gesamtbestand: 
+```{r}
+sum(Buecherwerte$Preis)
+```
+c) 
+```{r}
+# durchschnittliche Wiederbeschaffungpreis pro mm:
+(preispromm <- (Buecherwerte$Preis)/ (Buecherwerte$Dicke))
+(mean(preispromm))
+# Wiederbeschaffungskosten für Gesamtbestand: 
+gesamtdicke <- 25182
+(kostengesamtbestand <- gesamtdicke* (mean(preispromm)))
+```
+d) Streudiagramm: 
+```{r}
+stripchart(Buecherwerte$Preis ~ Buecherwerte$Dicke, 
+           ylab = "Dicke in mm", 
+           xlab = "Preis")
+```
+
+e) 
+In den angefertigen Streudiagramm zeigt sich nur bei genauerer Betrachtung dahingehend eine Tendenz in den Daten, dass mit zumehmenden Preis auch die Buchdicke steigt. Hierbei handelt es sich aber nur um einen tendenziellen und nicht um einen deterministischen Zusammenhang. Da bei Einzeichnung einer Linie durch die Datenpunktewolke, dennoch die Werte nicht exakt auf dieser verteilt liegen würden (es herrscht eine große Varianz/ Streuung in den Daten), kann man die aus der Dicke des Buches nicht vollstädnig auf den Wiederanschaffungspreis schließen. Der oben beschriebene tendenzielle Zusammenhang zwischen Preis und Buchdicke zeigt sich v.a. bei Buchpreise unter 500 Pence. Für höhger liegende Preise ist die Streuung zu groß. Es kann also nur bedingt bis gar nicht von der Dicke eines Buches auf den Preis geschlossen werden. Aufgrund der großen Varianz in den Daten wäre dieser Schätzwert (auch eher) unverlässig. 
+Zur veranschlichung ist in der folgenden Grafik auch noch einmal die Dicke auf der x -Achse abgetragen: 
+
+```{r}
+stripchart(Buecherwerte$Dicke ~ Buecherwerte$Preis, 
+           xlab = "Dicke in mm", 
+           ylab = "Preis")
+```
+
+
+Hier zeigen sich v.a bei kleinen Dicken viele Datenpunkte (=Cluster). Es ist aber auch nur ein leichter tendenzieller Zusammenhang mit einer großen Varianz in den Daten ersichtlich. 

@@ -1,0 +1,43 @@
+---
+title: "SchönherrAlina4.R"
+author: "Alina Schönherr"
+date: "2024-07-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) 
+Unter i versteht man die Zeilen und unter j die Spalten. 
+Um die Matrix Hij zu erhalten, muss man jede Zeile mit allen Spalten multiplizieren. Dies sieht wie folgt aus: ´
+Wir haben die Beiden Matrixen A und B gegeben und wollen daraus Hij machen. A enthält alle zeilen i und B enthält alle Spalten j: 
+
+für die Werte von l= 1 bis n: 
+
+ail * blj
+
+
+b) Implementierung der Matrix: 
+```{r}
+# Erstellung der Vektoren: 
+(x <- c(1/seq(1,4, 1),1/seq(2,5,1),1/seq(3,6,1), 1/seq(4,7,1)))
+# Einlaufen lassen des Vektors in die Matrix: 
+(Matrix4 <- matrix(x, nrow= 4))
+
+```
+c) 
+```{r}
+matrixfunktion <- function(n){
+  i = rep(n,n)
+  matrix(i, nrow= n, ncol= n)
+}
+
+# Test mit einem beliebigen n 
+matrixfunktion(9)
+```
+

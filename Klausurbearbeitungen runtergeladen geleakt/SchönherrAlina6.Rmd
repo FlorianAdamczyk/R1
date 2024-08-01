@@ -1,0 +1,77 @@
+---
+title: "SchönherrAlina6"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) 
+
+```{r}
+wollknaeul <- scan( file= "C:/Users/PCUser/Documents/DATA ANALYTICS/R1/Klausur/Daten/Prüfungsaufgaben_und_-daten/Wollknaeuelgewichte2024.txt")
+head(wollknaeul)
+tail(wollknaeul)
+str(wollknaeul)
+#summary(wollknaeul)
+```
+In dem Datensatz befinden sich 20 Daten mit einem numerischen Datentyp. Die ersten 5 und letzten 5 Daten wurden wieder mit den Befehlen head und tail angezeigt. 
+
+b) Prüfen der Normalverteilungsannahme mittels der qqnorm.sim Funktion: Hier werden 11 Zufallsdatensätze aus einer Normalveteilung generiert und neben die Originaldaten (wollknaeul) abgetragen. Ein direkter Vergleich ist somit möglich: 
+```{r}
+qqnorm.sim <- function(x) {
+  oldp <- par(mfrow = c(3, 4))   # oldp speichert die aktuellen
+    # Einstellungen des Grafiklayouts (bevor der (3x4)-Mehr-
+    # fachplotrahmen aktiviert wird), um sie nachher wiederher-
+    # zustellen.
+        
+   qqnorm(x, main = "Originaldaten",  # Normal-QQ-Plot der zu
+          datax = TRUE, col = "red")  # beurteilenden Daten
+   qqline(x, datax = TRUE)            # (rot) mit Refenzlinie.
+        
+   n <- length(x)   # Stichprobenumfang der zu beurteil. Daten.
+   replicate(11, {  # 11-fache Wiederh. der Befehle in {....}.
+         xx <- rnorm(n)  # Erzeugung normalverteilter Daten.
+         qqnorm(xx, main = "Simulationsdaten", datax = TRUE)
+         qqline(xx, datax = TRUE)
+         } )
+ invisible(par(oldp))
+}
+
+qqnorm.sim(wollknaeul)
+```
+Es zeigt sich deutlich, dass die Originaldaten (oben links) am rechten oberen Rand von der qqline Abweichen. Eine "perfekte" Normalverteilung würde vorliegen, wenn alle Datenpunkte auf der eingezeichneten diagonalen Linie liegen. Da aber auch in den Simulationsdaten Schwankungen ersichtlich sind (z.B. obere Zeile zweite Grafik von rechts), ist es schwierig die Normalverteilungsannahme zu bestätigen oder zu verwerfen. Es muss auch bedacht werden, dass in diesem Datensatz lediglich 20 Daten vorliegen. Bei weniger Daten ist die Streuuung (Varianz) in den Daten größer. Es müssten also mehr Daten untersucht werden und dann müsste geschaut werden, ob die Varianz geringer wird (d.h. die Streuuung der Daten). Da in der Verteilung der Daten in den Originaldaten ersichtlich ist, dass nur drei Datenpunkte am rechten oberen Ende der Verteilung entfernter von der qqline sind, ist die Normalverteilungsannahme nicht direkt zu verwerfen. 
+
+c) - e) 
+```{r}
+# Berechnung mediane Wickelgewicht: 
+mean(wollknaeul)
+```
+Das Sollgewicht beträgt 50 g. Es muss nun geschaut werden, ob diese Abweichung zufällig aufgrund der Stichprobenziehung oder signifikant (d.h. bedeutsam) ist. Dazu wird ein Hypothesentest durchgeführt. 
+Es werden folgende Hypothesen aufgestellt: 
+H0 : es gibt keine Abweichung zwischen medianen Wickelgewicht und dem Sollwert ä
+H1: es existiert eine Abweichung
+Das Signifikanzniveau alpha wird auf einen Wert von 0.05 gesetzt. Das bedeutet, dass ein Fehler 1. Art (fälschlicherweise Verwerfen der Ho) mit einer Wahrscheinlichkeit von 5 Prozent passiert. 
+
+```{r}
+t.test(wollknaeul,mu = 50)
+```
+Da die Normalverteilungsannahme weder verworfen noch bestätigt werden konnte, aufgrund der zu geringen Daten, wurde zunächst ein zweiseitiger t test durchgeführt. Es zeigt sich ein p- Wert von 0.02154. Bei einem Signifikanzsniveau von 5 % liegt der p Wert unter dem alpha Wert. Dies spricht dafür, dass der p - Wert signifikant ist und die Ho verworfen wird. Das Wickelgewicht weicht also signifikant vom gewünschten Sollgewicht ab. Aufgrund der wenigen Daten kann nicht sicher davon ausgegangen werden, dass in den daten eine normalverteilung vorliegt. Deswegen wurde anschließend der wilkoxon vorzeichen rangsummentest durchgeführt: 
+
+```{r}
+wilcox.test(wollknaeul, mu= 50)
+```
+Auch hier zeigt sich ein p Wert kleiner das alpha Wertes (0.05), was zu einem Verwerfen der Ho Hypothese führt. 
+
+Vorraussetzungen für die einzelnen Verfahren: 
+t.test : Normalverteilte Daten müssen vorliegen 
+wilkoxon vorzeichen ragsummentest: die daten müssen nicht normalverteilt, aber symmetrisch sein und stetig. Zudem muss der Median eindeutig bestimmbar sein, was bereits weiter oben in der Aufgabe erfolgte. 
+--> Da die Normalverteilungsannahme weder bestätigt noch dementiert werden konnte, ist es schwierig die Daten zu prüfen. Man müsste den Datensatz erweitern und dann die Normalverteilungsannahme erneut prüfen. 
+
+

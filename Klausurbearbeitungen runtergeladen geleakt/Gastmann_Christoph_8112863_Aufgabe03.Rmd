@@ -1,0 +1,42 @@
+---
+title: "Aufgabe 03"
+author: "Christoph Gastmann | Matrikel: 8112863"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# laden der Pakete
+```{r}
+library(car)
+library(ggplot2)
+library(tidyverse)
+```
+
+a) Wieviel St¨ucke Ausschuss w¨aren zu erwarten?
+```{r}
+n <- 100  
+p <- 0.03 
+
+Ausschuss <- n * p
+
+print(Ausschuss)
+```
+
+Es wären `r Ausschuss` zu erwarten.
+
+b) Spricht die Beobachtung von f¨unf St¨ucken Ausschuss gegen die angebliche Schwelle von
+3 %? Begr¨unden Sie Ihre Antwort und ziehen Sie dazu die Wahrscheinlichkeit heran, mit
+der ein mindestens so schlechtes Ergebnis in dem Produktionsverfahren zu beobachten
+w¨are, wenn die Ausschussquote tats¨achlich 3 % betr¨uge!
+
+```{r}
+WS_echt_kleiner_5 <- pbinom(4, n, p)
+WS_echt_kleiner_5
+
+WS_mindest_5 <- (1 - WS_echt_kleiner_5)
+WS_mindest_5
+
+WS_Pro_round <- round(WS_mindest_5, 1) * 100
+```
+
+Die Beobachtung spricht nicht dagegen. Die WS 5 oder mehr Ausschuss zu produzieren liegt bei ca. `r WS_Pro_round` % (20 %). Daher ist es gut möglich, dass es mal vorkommt, dass 5 Ausschuss produziert wird.

@@ -1,0 +1,137 @@
+---
+title: "Aufgabe 06"
+author: 'Christoph Gastmann | Matrikel: 8112863'
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# laden der Pakete
+```{r}
+library(car)
+library(ggplot2)
+library(tidyverse)
+```
+
+a) Lesen Sie mit scan Gewichtsdaten in R ein und kontrollieren Sie Struktur der eingelesenen
+Daten!
+```{r}
+data_wolle <- scan("Wollknaeuelgewichte2024.txt", sep = " ")
+data_wolle
+
+head(data_wolle, 5)
+tail(data_wolle, 5)
+```
+
+b) Der Hersteller der Wickelmaschine hat angegeben, dass die Wickelgewichte normalverteilt
+seien. ¨Uberpr¨ufen Sie diese Aussage mit einem geeigneten explorativen Werkzeug! Was
+halten Sie von der Aussage?
+```{r}
+qqPlot(data_wolle)
+```
+Ich würde dem hersteller widersprechen. Da die Gewichte systematisch von der Normalverteilung abweichen. Wie im QQ-Plot zu sehen, liegen die empirischen Gewichte tendenziell über den zu erwartenden Gewichten. Insbesondere für besonders schwere Wollknäule (>50.75g) ist das der Fall.
+
+```{r}
+qqnorm.sim <- function(x) {
+  oldp <- par(mfrow = c(3, 4))   # oldp speichert die aktuellen
+    # Einstellungen des Grafiklayouts (bevor der (3x4)-Mehr-
+    # fachplotrahmen aktiviert wird), um sie nachher wiederher-
+    # zustellen.
+        
+   qqnorm(x, main = "Originaldaten",  # Normal-QQ-Plot der zu
+          datax = TRUE, col = "red")  # beurteilenden Daten
+   qqline(x, datax = TRUE)            # (rot) mit Refenzlinie.
+        
+   n <- length(x)   # Stichprobenumfang der zu beurteil. Daten.
+   replicate(11, {  # 11-fache Wiederh. der Befehle in {....}.
+         xx <- rnorm(n)  # Erzeugung normalverteilter Daten.
+         qqnorm(xx, main = "Simulationsdaten", datax = TRUE)
+         qqline(xx, datax = TRUE)
+         } )
+ invisible(par(oldp))  # Restauration des vorherigen Grafik-
+                       # layouts, ohne dass ein Rückgabewert
+                       # an der Aufrufstelle ausgegeben wird.
+ # Alternative: on.exit(par(oldp)) # Bedeutung siehe Hifeseite!
+}
+
+qqnorm.sim(data_wolle)
+```
+Ich habe mich noch ihrer `qqnorm.sim` bedient. Hier sind die vergleiche mehrdeutig. Es kommt schon mal vor, dass bei den simulierten Daten zu ähnlichen ausreißern kommt, wie in den emp. Daten.
+
+```{r}
+eda <- function(x) {
+ oldp <- par(mfrow = c(3, 2), mgp = c(1.7, 0.6,0),
+             mar = c(3.5, 3, 2.6, 0.5) + 0.1, cex = 0.8)
+ on.exit(par(oldp))
+
+ hist(x, freq = FALSE, ylab = "Dichte", xlab = "",
+      main = "Histogramm")
+ boxplot(x, horizontal = TRUE, main = "Boxplot")
+ set.seed(42)
+ stripchart(x, add = TRUE, col = "blue", method = "jitter")
+
+ qa <- diff(quantile(x, c(1/4, 3/4)))
+ dest <- density(x, width = qa)
+ plot(dest, ylab = "Dichte", main = "Dichteschätzer")
+
+ qqnorm(x, datax = TRUE, ylab = "Stichprobenquantile",
+        xlab = "Theoretische Quantile")
+ qqline(x, datax = TRUE)
+ ts.plot(x, ylab = "", xlab = "Zeit bzw. Index",
+         main = "Zeitreihe")
+
+ acf(x, main = "Autokorrelation")
+
+ d <- max(3, getOption("digits") - 3)
+ c(summary(x), "St.Dev." = signif(sd(x), digits = d))
+}
+
+eda(data_wolle)
+```
+ Weiter habe ich mich noch bei ihrer Funktion `eda` bedient. Hier erkennt man, dass die Daten nicht Symetrisch sind.
+
+c) Es besteht der Verdacht, dass das mediane Wickelgewicht des Produktionsprozesses vom
+gew¨unschten Sollgewicht abweicht. Es ist Ihre Aufgabe, datenanalytisch zu untersuchen,
+ob dieser Verdacht gerechtfertigt ist. W¨ahlen und nennen Sie ein dazu geeignetes statistisches
+Verfahren und seine Voraussetzungen! Sind die Voraussetzungen f¨ur die vorliegenden
+Daten erf¨ullt bzw. ¨uberhaupt ¨uberpr¨ufbar?
+```{r}
+
+```
+
+Sofern die Daten nicht als normalverteilt gelten, ist der nonparametrische Pendant zum t-Test der Wilcoxon-Vorzeichen-Rang-Test. Dafür müssen die  Daten wenigstens ordinalverteilt sein, was bei Gewichtangaben in Gramm definitiv gegeben ist.
+
+
+d) Formalisieren Sie die beiden Aussagen, zwischen denen in dem von Ihnen in Teil c gew¨ahlten Verfahren zu entscheiden ist, und benennen Sie sie unter Verwendung der ¨ublichen Fachausdr¨ucke! Legen Sie sodann denWert einer entscheidenden Gr¨oße fest und benennen Sie auch sie mit dem ¨ublichen Fachausdruck! Wie lautet die zugeh¨orige Entscheidungsregel?
+
+$H_0$: $\tilde{x}_{\text{Mdn_Wolle}}$ = $Mdn_0$ (Null-Hypothese: die gezogene Stichprobe stammt aus einer  theoretischen Grundgesammtheit (GG) mit Median $Mdn_0$ = 50, d.h. der Median der  empirischen Wollknäulgewichte Mdn_Wolle entspricht dem theoretischen Median  der GG) vs. 
+
+$H_1$: $Mdn_Wolle$ != $Mdn_0$ (Alternativhypothse: der empirische Median weicht signifikant vom theoretischen ab, d.h. ist signifikant größer / kleiner)
+ $H_0$ zu Gunsten der $H_1$ verworfen.
+ 
+ Edit*: Man könnte auch argumentiren, dass ein einseitiger Test gerechnet werden kann. Da wäre aber die Frage, was die Hypothese wäre. Als Geschäftsmann wäre es wichtig, dass die Abweichung nicht zu weit nach oben geht, damit ich nicht zu viel Geld verliere. Als Käufer wäre es wichtig, dass die Abweichung nicht nach Unten geht, damit auch nicht für zu wenig Wolle als eigentlich angedacht ist bezahle. Da es nicht ersichtlich ist, wird beiseitig gerechnet. 
+ 
+e) F¨uhren Sie schließlich die Datenanalyse durch und teilen Sie Ihre Entscheidung mit!
+```{r}
+Test_Statistik <-  wilcox.test(data_wolle, mu = 50)
+
+```
+
+```{r}
+hypothesen_test <- function(p_wert, alpha = 0.05) {
+
+  if (p_wert <= alpha) {
+    message("Die $H_0$ muss verworfen werden und die $H_1$ kann angenommen werden")
+  } else {
+    message("Die $H_0$ kann nicht verworfen werden und die $H_1$ muss verworfen werden")
+  }
+}
+
+Antwort <- hypothesen_test(Test_Statistik$p.value)
+```
+`r Antwort``
+```{r}
+median(data_wolle)
+```
+
+
+Die H0 wird zu Gunsten der Alternaitvhypothese H1 verworfen, die Wollknäule sind also im Mittel signifikant schwerer als die angegebenen 50 g `r median(data_wolle)`

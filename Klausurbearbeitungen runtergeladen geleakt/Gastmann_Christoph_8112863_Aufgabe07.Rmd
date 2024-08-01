@@ -1,0 +1,76 @@
+---
+title: "Aufgabe 07"
+author: 'Christoph Gastmann | Matrikel: 8112863'
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# laden der Pakete
+```{r}
+library(car)
+library(ggplot2)
+library(tidyverse)
+```
+
+a) Lesen Sie die Daten in Lungenlappendichte.csv mithilfe von read.csv2 in einen Data
+Frame ein und kontrollieren Sie dessen Struktur und Inhalt!
+
+```{r}
+df_lunge <- read.csv2("Lungenlappendichte.csv")
+head(df_lunge)
+tail(df_lunge)
+str(df_lunge)
+sample_n(df_lunge, 5)
+view(df_lunge)
+```
+b) Leiten Sie eine neue Spalte Gesamt ab, die f¨ur jeden HU-Wert seine ¨uber die f¨unf Lungenlappen
+hinweg kumulierte Gesamth¨aufigkeit enth¨alt!
+
+```{r}
+df_lunge$Gesamt <- rowSums(df_lunge[, c("LU", "LO", "RU", "RM", "RO")])
+view(df_lunge)
+```
+
+c) Die Aufl¨osung der HU-Skala soll vergr¨obert werden, damit die H¨aufigkeitsverteilung der in Spalte Gesamt stehenden Daten ¨uberhaupt einigermaßen ¨ubersichtlich wird. Leiten Sie zu diesem Zweck mithilfe der Funktion cut zun¨achst einen Faktorvektor aus der Spalte HUDichte ab, wobei Sie ihren Wertebereich von -1100 bis 3100 in Intervalle der Breite 100 einteilen! Sorgen Sie daf¨ur, dass der Faktorvektor den ad¨aquaten Modus einer ordinal skalierten Variablen hat! (2 Punkte) Nutzen Sie dann jenen Faktorvektor, um die Elemente der Spalte Gesamt entsprechend gruppiert zu summieren! (Tipp: tapply in Verbindung mit sum.)
+
+```{r}
+df_lunge$HUCut <- cut(df_lunge$HUDichte, breaks = seq(-1100, 3100, by = 100), right = FALSE)
+df_lunge$HUCut <- factor(df_lunge$HUCut, ordered = TRUE)
+
+gesamt_gruppiert <- tapply(df_lunge$Gesamt, df_lunge$HUCut, sum, na.rm = TRUE)
+gesamt_gruppiert
+```
+
+d) Fertigen Sie schließlich f¨ur die ”gruppierte“ H¨aufigkeitsverteilung von eben ein S¨aulendiagramm
+mit horizontalen S¨aulen an (also ein Balkendiagramm)! Sorgen Sie mit den Argumenten las und mar der Funktion par daf¨ur, dass die Beschriftung beider Achsen 3 horizontal ist und dass insbesondere f¨ur die Beschriftung der vertikalen Achse gen¨ugend Platz ist! Charakterisieren Sie kurz die dargestellte Verteilung!
+
+```{r}
+par(mar=c(5.1, 12, 4.1, 2.1), las=1)
+ggplot(df_lunge, aes(Gesamt, HUCut)) + geom_col(width = 0.8, fill = "skyblue") 
+```
+Die Verteilung ist rechts steil, links schief: die negativen Werte sind deutlich häufiger vertreten, als die positiven. Die Skala wurde um null unsymmetrisch eingeteilt von 3100 bis -1100 in 100er Schritten, womit die getroffene Aussage begründert werden könnte, sie ist aber auch dann wahr, wenn nur der Ausschnitt  -1100 bis 1100 betrachtet wird. Negative Werte sind also deutlich häufiger vertreten.
+
+e) Rekonstruieren Sie aus den vorliegenden H¨aufigkeiten in Gesamt und den dazugeh¨origen Werten in HUDichte die urspr¨unglichen Rohdaten! (Es sollte ein Vektor mit mehr als 3,6 Mio. Elementen sein.)
+
+```{r}
+werte_lunge_roh <- rep(df_lunge$HUDichte, df_lunge$Gesamt) 
+laenge_lunge_roh <- length(werte_lunge_roh)
+laenge_lunge_roh
+```
+
+f) Einen Normal-QQ-Plot f¨ur eine derart große Stichprobe wie die in Teil e rekonstruierte
+anzufertigen, ist aufgrund der Rechenzeit sinnlos. Alternativ kann man eine (oder mehrere)
+hinreichend große, zuf¨allige Teilstichprobe(n) aus der Stichprobe ziehen und f¨ur diese
+die Zul¨assigkeit der Normalverteilungsannahme pr¨ufen. Ziehen Sie mithilfe der Funktion
+sample (siehe ihre Hilfeseite!) reproduzierbar (!) etwa 0,5 % der Stichprobe von Teil e
+als zuf¨allige Teilstichprobe und beurteilen Sie daf¨ur, ob die Normalverteilungsannahme
+haltbar ist!
+
+```{r}
+
+set.seed(42) 
+werte_lunge_stichprobe <- sample(werte_lunge_roh, size = laenge_lunge_roh * 0.005)
+qqPlot(werte_lunge_stichprobe)
+
+```
+Die Stichprobe weicht deutlich von der Normalverteilung ab, insbesondere für positive Werte.

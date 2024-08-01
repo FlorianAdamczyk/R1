@@ -1,0 +1,44 @@
+---
+title: "Aufgabe 04"
+author: "Christoph Gastmann | Matrikel: 8112863"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# laden der Pakete
+```{r}
+library(car)
+library(ggplot2)
+library(tidyverse)
+```
+
+a) Ermitteln Sie – ohne R! – die (sehr einfache) Formel, mit der die Elemente Hi,j obiger
+Matrix in Abh¨angigkeit ihrer Zeilen- und Spaltenindices i bzw. j berechnet werden!
+
+Formel sind immer etwas schwierig. Würde es mal erklären. Zeilen haben Zahlen als Namen. Zeilennamen = 1:n (1,2,3, etc.) Für die Zeile gilt dann. 1/Zeilennamen und für jede weitere Spalte. 1/(Zeilennamen+1)
+
+
+b) Verwenden Sie lediglich die Funktionen matrix, seq (bzw.
+” :“), rep, col und/oder row sowie elementare Arithmetik, um die obige (4 × 4)-Matrix mit R zu reproduzieren (ohne dass Sie diese Matrix ” einfach eintippen“)!
+
+```{r}
+i <- seq(from = 1, to = 4)
+
+Matrix_4 <- matrix(1 / (rep(i, each=4) + rep(i-1, times=4)), nrow = 4)
+
+Matrix_4
+```
+
+c) Verallgemeinern Sie nun Ihren Programmcode zu einer Funktion mit einem Argument n,
+die zu diesem n die entsprechende (n × n)-Matrix erzeugt!
+
+```{r}
+n <- 20
+
+i <- seq(from = 1, to = n)
+
+Matrix_n <- matrix(1 / (rep(i, each=n) + rep(i-1, times=n)), nrow = n)
+
+Matrix_n
+```
+

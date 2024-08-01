@@ -1,0 +1,64 @@
+---
+title: "SchönherrAlina7"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) Einlesen der Datei: 
+```{r}
+lungenlappendichte <- read.csv2(file= "C:/Users/PCUser/Documents/DATA ANALYTICS/R1/Klausur/Daten/Prüfungsaufgaben_und_-daten/Lungenlappendichte.csv")
+str(lungenlappendichte)
+head(lungenlappendichte)
+tail(lungenlappendichte)
+```
+
+Bei dem Datensatz handelt es sich um einen Data.Frame mit integer Werten. Der Datensatz besteht aus 4075 Einträgen. Die ersten 6 und letzten 6 Zeilen des Data.Frames wurden jeweils zur Kontrolle mit ausgegeben. 
+
+b) 
+```{r}
+ 
+kumulierteH <- rowSums(lungenlappendichte[, c("LU", "LO", "RU", "RM", "RO")])
+
+# Neue Spalte 'gesamt' hinzufügen
+lungenlappendichte$gesamt <- kumulierteH
+
+
+```
+c) 
+```{r}
+lungenlappendichteneu <- data.frame(HU = c(-1000, 0, 500, 1500, 2500, 3000))
+
+# Definieren der Intervallgrenzen (Breaks)
+breaks <- seq(-1100, 3100, by = 1000)  # Sie können die Schrittweite (by) anpassen
+
+# Erstellen des Faktorvektors mit cut
+df$HU_Factor <- cut(df$HU, breaks = breaks, include.lowest = TRUE)
+
+
+HUDichte <- c(lungenlappendicht$HUDichte])
+
+Klasse <- cut(lungenlappendichte[,HUDichte], breaks= c(-1100,3100) )
+```
+
+d) 
+```{r}
+barplot(lungenlappendichte, beside = FALSE, horiz = TRUE) 
+```
+
+f) 
+
+```{r}
+o <- rnorm(100,0,1)
+
+beispiele <- sample(o,8)
+qqplot(beispiele)
+```
+

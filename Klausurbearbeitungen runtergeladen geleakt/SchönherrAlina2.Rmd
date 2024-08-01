@@ -1,0 +1,53 @@
+---
+title: "SchönherrAlina2"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) Einlesen der Daten: 
+```{r}
+geburtsdaten <- scan( file= "C:/Users/PCUser/Documents/DATA ANALYTICS/R1/Klausur/Daten/Prüfungsaufgaben_und_-daten/Geburtsdaten.txt", what = character())
+#Ausgeben der ersten 5 und letzten 5 Zeilen des Datensatzes: 
+head(geburtsdaten,5)
+tail(geburtsdaten,5)
+str(geburtsdaten)
+summary(geburtsdaten)
+```
+In dem Datensatz befinden sich anhand dieses Auschnittes immer 5 Geburtstagseintragungen als character nebeneinander.
+
+b) 
+```{r}
+# Ermittlung von Daten, die häufiger auftreten: True bedeutet der Datenwert war kommt zum wiederholten mal vor  
+duplinks <- duplicated(geburtsdaten)
+# Durchsuchung Datensatz von beiden Seiten: 
+Geburtsdatenrev <- rev(geburtsdaten)
+duprechts <- duplicated(Geburtsdatenrev) 
+
+# Ermittlung Duplikate mit oder: 
+duplikate <- (duplinks|duprechts)
+duplikate
+
+table (duplikate) # hier wird nur gezeigt, wie viele Werte mehr als einmal vorkommen (= True), aber nicht wie oft. Deswegen wurde anschließend Ansatz 2 durchgeführt. 
+
+# Ansatz 2: besser 
+
+(haeufigkeiten <- table(geburtsdaten))
+(vielfachheiten <- table (haeufigkeiten))
+```
+
+Die Tabelle Häufigkeiten gibt nun an, dass einige Geburtsgtage in der Datenbank nur einmal vermerkt sind und zwar 9169 Daten. Andere wiederum sind öfter vermerkt. Entsprechende Daten sind in der Tabelle ersichtlich. Möchte man nun aber nur die Vielfachen wissen, d.h. die Anzahl der Geburtsdaten, die mehr als einmal abgespeichert sind, dann muss man die erste Spalte noch entfernen, da hier die einmaligen Eintragungen vermerkt sind: 
+
+```{r}
+# Löschen erste Tabellenspalte: 
+(vielfachheitenneu <- vielfachheiten[-1])
+```
+

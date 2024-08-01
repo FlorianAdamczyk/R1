@@ -1,0 +1,55 @@
+---
+title: "SchönherrAlina5"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a)
+
+```{r}
+
+set.seed(42)
+
+k <- 30
+
+n_values <- seq(1, 100, length.out = k)
+
+a_n <- 10 + 2 * log(n_values)
+
+#Bestimmung Fehlerwert e: 
+epsilon <- rnorm(k, mean = 0, sd = sqrt(1/2))
+A_i <- a_n + epsilon
+
+#Erzeugung Data.Frame
+df <- data.frame(
+  n_i = n_values,
+  a_n_i = a_n,
+  epsilon_i = epsilon,
+  A_i = A_i
+)
+
+df
+
+```
+b) Grafik: 
+
+```{r}
+n_seq <- seq(1, 100, length.out = 1000)
+a_seq <- 10 + 2 * log(n_seq)
+
+# Erstellung Grafik Beziehung zwischen a und n : 
+plot(n_seq, a_seq, type = 'l', col = 'blue') 
+
+# Erstellung Streudiagramm: 
+stripchart(df$A_i ~ df$n_i, vertical = TRUE, method = "jitter", add = TRUE, col = 'red')
+```
+

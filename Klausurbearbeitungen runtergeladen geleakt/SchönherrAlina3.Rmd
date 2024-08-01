@@ -1,0 +1,25 @@
+---
+title: "SchönherrAina3.R"
+author: "Alina Schönherr"
+date: "2024-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Name: Alina Schönherr 
+Matrikelnummer: 2617-18122752
+
+a) Zu erwarten wären eigentlich 3 Stück Ausschluss gewesen, da 3% von 100 3 ergibt. Da aber die 100 Werkstücke zufällig gewählt wurden, muss mit einem Hypothesentest geprüft werden, ob die Schwankungen zufällig sind, oder ob die Annahme von 3 Prozent ausschluss nicht gerechtfertigt ist. 
+ 
+b) 
+
+```{r}
+#Wahrscheinlichkeit mindestens so schlechtes Ereignis --> d.h bei einer Ausschlussquote von 3 % wären mindestens 5 Werkteile (oder mehr!) defekt 
+
+pexp(0.03,4, lower.tail = FALSE)
+```
+P (x >4) --> bedeutet mindestens 5 Bauteile fallen aus
+Die Wahrscheinlichekeit das mindestens 5 Bauteile ausfallen liegt bei 88.9 Prozent. Dies spricht für eine Hohe Wahrscheinlichkeit, dass bei einer Ausfallquote bei 3 % fünf oder mehr Teile ausfallen. Demnach spricht dieses Ergebnis eher nicht gegen die angebliche Schwelle. 
